@@ -59,7 +59,7 @@
     width: 100%;
     padding: 1rem;
     background: var(--accent);
-    color: #0d0f12;
+    color: var(--bg);
     font-weight: 700;
     font-size: 1.05rem;
     border: none;
@@ -222,3 +222,35 @@
   .p-habits .habit-group:last-of-type { margin-bottom: 0; }
   @media (max-width: 900px) { .duo-cards { grid-template-columns: 1fr; } }
   @media (max-width: 640px) { .p-split { grid-template-columns: 1fr; } }
+
+  /* ---- Thèmes (le duel de la Faucheuse : quatre tenues de soirée) ---- */
+  html[data-theme="terminal"] {
+    --bg: #060a06; --card: #0c130c; --text: #c8f0c8; --muted: #639463;
+    --accent: #4ade80; --danger: #ff6b5e; --border: #1b291b;
+  }
+  html[data-theme="parchemin"] {
+    --bg: #efe7d3; --card: #f8f2e2; --text: #2f2a21; --muted: #7c7160;
+    --accent: #8a6d3b; --danger: #a33b2e; --border: #d8cbae;
+  }
+  html[data-theme="neon"] {
+    --bg: #0d0518; --card: #160b2b; --text: #f0e6ff; --muted: #9d87cf;
+    --accent: #e05fff; --danger: #ff4f7e; --border: #2c1a4f;
+  }
+
+  /* Interrupteur de thème, en haut à gauche, petit et discret */
+  .theme-switch { position: fixed; top: .6rem; left: .6rem; display: flex; gap: .4rem; z-index: 100; }
+  .theme-switch .ts-btn {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer; padding: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.35);
+  }
+  .theme-switch .ts-btn:hover { border-color: var(--muted); }
+  .theme-switch .ts-btn.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--card); }
+
+  /* Textes et traits SVG habillés par le thème (les classes priment sur l'attribut fill) */
+  .ctr-main { fill: var(--text); }
+  .ctr-sub { fill: var(--muted); }
+  .g-lab { fill: var(--muted); }
+  .g-line { stroke: var(--border); }
+  .g-curve { stroke: var(--accent); }
+  .g-dot { fill: var(--accent); }

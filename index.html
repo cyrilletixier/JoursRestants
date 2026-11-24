@@ -6,6 +6,7 @@
 <title>Jours Restants — Combien de jours vous reste-t-il ?</title>
 <meta name="description" content="Entrez votre date de naissance et découvrez combien de jours il vous reste à vivre avec 50 % de chance, d'après les tables de mortalité de l'INSEE et vos comportements.">
 <link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -114,6 +115,7 @@
 
     <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge, ajustées des trois comportements les plus déterminants selon la littérature épidémiologique : tabac (Doll et al., BMJ 2004), alcool (Wood et al., The Lancet 2018), activité physique (Moore et al., PLoS Medicine 2012). Le tabac, l'alcool et l'activité physique sont calés sur la population française réelle, par sexe (Baromètre Santé publique France, ANSES) : la moyenne n'étant ni un never-smoker ni un marathonien, chaque bonne réponse est un avantage et chaque excès un handicap, chiffrés dans les résultats. Le niveau de vie, proxy du patrimoine, est calé sur l'Insee Première n° 2085 (déc. 2025) : 13 ans d'écart d'espérance de vie entre les 5 % les plus modestes et les 5 % les plus aisés chez les hommes, 9 ans chez les femmes. Cumuler ces facteurs comporte un risque de double comptage : les riches fument aussi moins, et la Faucheuse ne rembourse pas les doublons. Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.</p>
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+    <footer>Site conçu, calculé et publié par <a href="https://chat.mistral.ai" target="_blank" rel="noopener">Vibe</a>, l'agent de Mistral AI&nbsp;: la seule intervenante du projet à n'avoir aucun jour restant à perdre. Le calcul, c'est elle&nbsp;; le compte à rebours, c'est vous.</footer>
   </div>
 
   <div class="right-col">
@@ -190,8 +192,8 @@ function donutSVG(segs, centerMain, centerSub) {
     offset += len;
   }
   return '<svg viewBox="0 0 140 124" role="img"><g transform="rotate(-90 70 62)">' + circles + "</g>" + pctLabels +
-    '<text x="70" y="60" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
-    '<text x="70" y="73" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
+    '<text class="ctr-main" x="70" y="60" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
+    '<text class="ctr-sub" x="70" y="73" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
 }
 
 /* Courbe SVG : gain de date de départ selon les années survécues (0 à 30 ans). */
@@ -203,11 +205,11 @@ function gainCurveSVG(data) {
   const y = g => H - B - (H - B - T) * (g / maxG);
   let grid = "", labels = "";
   for (let gy = 0; gy <= maxG; gy += 5) {
-    grid += '<line x1="' + L + '" y1="' + y(gy) + '" x2="' + (W - R) + '" y2="' + y(gy) + '" stroke="#262c35" stroke-width="1"/>';
-    labels += '<text x="' + (L - 6) + '" y="' + (y(gy) + 3) + '" text-anchor="end" fill="#8b929c" font-size="9">' + gy + "</text>";
+    grid += '<line x1="' + L + '" y1="' + y(gy) + '" x2="' + (W - R) + '" y2="' + y(gy) + '" stroke="#262c35" stroke-width="1" class="g-line"/>';
+    labels += '<text x="' + (L - 6) + '" y="' + (y(gy) + 3) + '" text-anchor="end" fill="#8b929c" font-size="9" class="g-lab">' + gy + "</text>";
   }
   for (let t = 0; t <= maxT; t += 5) {
-    labels += '<text x="' + x(t) + '" y="' + (H - B + 14) + '" text-anchor="middle" fill="#8b929c" font-size="9">' + t + "</text>";
+    labels += '<text x="' + x(t) + '" y="' + (H - B + 14) + '" text-anchor="middle" fill="#8b929c" font-size="9" class="g-lab">' + t + "</text>";
   }
   let path = "";
   data.forEach((d, i) => { path += (i ? "L" : "M") + x(d.t).toFixed(1) + "," + y(d.g).toFixed(1) + " "; });
@@ -215,13 +217,13 @@ function gainCurveSVG(data) {
   const area = path + "L" + x(last.t).toFixed(1) + "," + y(0).toFixed(1) + " L" + x(0).toFixed(1) + "," + y(0).toFixed(1) + " Z";
   let dots = "";
   for (const d of data) {
-    if (d.t % 10 === 0 || d.t === last.t) dots += '<circle cx="' + x(d.t).toFixed(1) + '" cy="' + y(d.g).toFixed(1) + '" r="2.6" fill="#7ec8a9"/>';
+    if (d.t % 10 === 0 || d.t === last.t) dots += '<circle cx="' + x(d.t).toFixed(1) + '" cy="' + y(d.g).toFixed(1) + '" r="2.6" fill="#7ec8a9" class="g-dot"/>';
   }
-  dots += '<text x="' + (x(last.t) - 5) + '" y="' + (y(last.g) - 8) + '" text-anchor="end" fill="#7ec8a9" font-size="10" font-weight="700">' + yearsFmt(last.g) + "</text>";
+  dots += '<text x="' + (x(last.t) - 5) + '" y="' + (y(last.g) - 8) + '" text-anchor="end" fill="#7ec8a9" font-size="10" class="g-dot" font-weight="700">' + yearsFmt(last.g) + "</text>";
   return '<svg viewBox="0 0 ' + W + " " + H + '" role="img">' + grid +
     '<path d="' + area + '" fill="rgba(126,200,169,.12)"/>' + labels +
-    '<path d="' + path + '" fill="none" stroke="#7ec8a9" stroke-width="2.2"/>' + dots +
-    '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" fill="#8b929c" font-size="9">années survécues</text></svg>';
+    '<path d="' + path + '" fill="none" stroke="#7ec8a9" stroke-width="2.2" class="g-curve"/>' + dots +
+    '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" fill="#8b929c" font-size="9" class="g-lab">années survécues</text></svg>';
 }
 
 document.getElementById("btn").addEventListener("click", () => {

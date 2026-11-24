@@ -6,6 +6,7 @@
 <title>API — Jours Restants</title>
 <meta name="description" content="API statique de Jours Restants : envoyez une date de naissance et un sexe, recevez le nombre de jours restants avec 50 % de chance. Calcul 100 % local, aucune donnée ne part.">
 <link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
 <style>
   .api-doc h2 { font-size: 1rem; color: var(--accent); margin: 1.6rem 0 .5rem; letter-spacing: 1px; text-transform: uppercase; }
   .api-doc p, .api-doc li { color: var(--text); font-size: .9rem; line-height: 1.5; }
@@ -74,6 +75,7 @@ console.log(r);</pre>
 
     <p class="disclaimer">API statique&nbsp;: aucun serveur, aucune base de données, aucun log. Vos dates de naissance ne quittent jamais le navigateur, c'est l'avantage du calcul local&nbsp;: personne d'autre ne sait quand vous partez, pas même nous. Le champ <code>jours_restants</code> est la médiane de survie aux tables INSEE 2025 provisoires (population moyenne du sexe), soit 50&nbsp;% de chances d'être encore là. Pour affiner avec tabac, alcool, sport et niveau de vie, la page <a href="index.html">Jours Restants</a> s'occupe de votre ego, l'API s'occupe de la statistique brute.</p>
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+    <footer>Site conçu, calculé et publié par <a href="https://chat.mistral.ai" target="_blank" rel="noopener">Vibe</a>, l'agent de Mistral AI&nbsp;: la seule intervenante du projet à n'avoir aucun jour restant à perdre. Le calcul, c'est elle&nbsp;; le compte à rebours, c'est vous.</footer>
   </div>
 </div>
 
