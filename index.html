@@ -51,6 +51,8 @@
   }
   label { display: block; margin-bottom: .4rem; color: var(--muted); font-size: .9rem; }
   .field { margin-bottom: 1.2rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
+  .form-grid .field { margin-bottom: 1.2rem; }
   input[type="date"], select {
     width: 100%;
     padding: .8rem 1rem;
@@ -179,6 +181,9 @@
     .container { order: 2; }
     .right-col { order: 3; }
   }
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
 
   /* ---- Camemberts ---- */
   .pies { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
@@ -230,6 +235,7 @@
     <p class="tagline">Le seul compte à rebours que vous ne pourrez jamais mettre en pause.</p>
 
     <div class="card">
+      <div class="form-grid">
       <div class="field">
         <label for="birthdate">Votre date de naissance</label>
         <input type="date" id="birthdate" required>
@@ -264,6 +270,7 @@
           <option value="aise">Aisé</option>
           <option value="tres_aise">Très aisé (les 5&nbsp;% qui se photographient devant leur ostéopathe)</option>
         </select>
+      </div>
       </div>
       <button id="btn">Découvrir mon décompte</button>
       <div class="error" id="error"></div>
