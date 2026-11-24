@@ -21,22 +21,31 @@
     <p class="tagline">Le mariage, c'est jusqu'à ce que la mort vous sépare. Voici l'horaire probable de la séparation.</p>
 
     <div class="card">
+      <div class="shared-card">
+        <h3>Le foyer : le fric et la futurologie, tout ce qui se partage</h3>
+        <div class="shared-line">
+          <div class="field">
+            <label for="niveau">Niveau de vie du ménage (la Faucheuse lit l'avis d'imposition, un seul par foyer)</label>
+            <select id="niveau">
+              <option value="tres_modeste">Très modeste (les 5&nbsp;% les plus discrets à l'AGD)</option>
+              <option value="modeste">Modeste</option>
+              <option value="moyen" selected>Moyen (la France d'en bas, d'en haut, du milieu)</option>
+              <option value="aise">Aisé</option>
+              <option value="tres_aise">Très aisé (les 5&nbsp;% qui se photographient devant leur ostéopathe)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Futurologie assistée par IA (pour deux)</label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
+          </div>
+        </div>
+      </div>
+
       <div class="duo-cards">
         <div class="person-card">
-          <h3>Personne 1 (à gauche, comme au mariage)</h3>
-          <div class="form-grid">
-            <div class="field">
-              <label for="b1">Date de naissance</label>
-              <input type="date" id="b1" required>
-            </div>
-            <div class="field">
-              <label for="s1">Sexe (statistiquement, ça change tout)</label>
-              <select id="s1">
-                <option value="H">Homme</option>
-                <option value="F">Femme</option>
-              </select>
-            </div>
-          </div>
+          <h3>Personne 1 — les habitudes (à gauche, comme au mariage)</h3>
           <div class="habit-group">
             <h3>Cigarettes</h3>
             <label class="radio-row"><input type="radio" name="tabac1" value="jamais" checked><span>Jamais fumé</span></label>
@@ -58,9 +67,24 @@
           </div>
         </div>
 
-        <div class="person-card">
-          <h3>Personne 2 (à droite, comme au mariage)</h3>
-          <div class="form-grid">
+        <div class="person-card identity-card">
+          <h3>Les acteurs</h3>
+          <div class="p-bloc">
+            <div class="p-head">Personne 1 <span class="side">(celle de gauche)</span></div>
+            <div class="field">
+              <label for="b1">Date de naissance</label>
+              <input type="date" id="b1" required>
+            </div>
+            <div class="field">
+              <label for="s1">Sexe (statistiquement, ça change tout)</label>
+              <select id="s1">
+                <option value="H">Homme</option>
+                <option value="F">Femme</option>
+              </select>
+            </div>
+          </div>
+          <div class="p-bloc">
+            <div class="p-head">Personne 2 <span class="side">(celle de droite)</span></div>
             <div class="field">
               <label for="b2">Date de naissance</label>
               <input type="date" id="b2" required>
@@ -73,6 +97,10 @@
               </select>
             </div>
           </div>
+        </div>
+
+        <div class="person-card">
+          <h3>Personne 2 — les habitudes (à droite, comme au mariage)</h3>
           <div class="habit-group">
             <h3>Cigarettes</h3>
             <label class="radio-row"><input type="radio" name="tabac2" value="jamais" checked><span>Jamais fumé</span></label>
@@ -91,28 +119,6 @@
             <label class="radio-row"><input type="radio" name="sport2" value="regulier"><span>Régulière (le corps dit merci)</span></label>
             <label class="radio-row"><input type="radio" name="sport2" value="parfois" checked><span>De temps en temps</span></label>
             <label class="radio-row"><input type="radio" name="sport2" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
-          </div>
-        </div>
-      </div>
-
-      <div class="shared-card">
-        <h3>Le foyer (ce qui se partage : le compte en banque, et la futurologie)</h3>
-        <div class="form-grid">
-          <div class="field">
-            <label for="niveau">Niveau de vie du ménage (proxy du patrimoine, la Faucheuse lit l'avis d'imposition, un seul par foyer)</label>
-            <select id="niveau">
-              <option value="tres_modeste">Très modeste (les 5&nbsp;% les plus discrets à l'AGD)</option>
-              <option value="modeste">Modeste</option>
-              <option value="moyen" selected>Moyen (la France d'en bas, d'en haut, du milieu)</option>
-              <option value="aise">Aisé</option>
-              <option value="tres_aise">Très aisé (les 5&nbsp;% qui se photographient devant leur ostéopathe)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Futurologie assistée par IA (pour deux)</label>
-            <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
-            <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
-            <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
           </div>
         </div>
       </div>
