@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jours Restants — Combien de jours vous reste-t-il ?</title>
+<meta name="description" content="Entrez votre date de naissance et découvrez combien de jours il vous reste à vivre avec 50 % de chance, d'après les tables de mortalité de l'INSEE.">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --card: #161a20;
+    --text: #e8e6e1;
+    --muted: #8b929c;
+    --accent: #7ec8a9;
+    --danger: #e06c5f;
+    --border: #262c35;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .layout { width: 100%; max-width: 1100px; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+  .container { flex: 1 1 480px; min-width: 320px; }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: .5rem;
+  }
+  h1 span { color: var(--accent); }
+  .tagline {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  label { display: block; margin-bottom: .4rem; color: var(--muted); font-size: .9rem; }
+  .field { margin-bottom: 1.2rem; }
+  input[type="date"], select {
+    width: 100%;
+    padding: .8rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  input[type="date"]:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  button {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    color: #0d0f12;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: .5rem;
+    transition: transform .1s ease, filter .1s ease;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:active { transform: scale(.99); }
+  #result { display: none; margin-top: 1.5rem; text-align: center; }
+  #result.visible { display: block; animation: fadein .6s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+  .big-number {
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .big-label { color: var(--muted); margin-bottom: 1.2rem; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+  .stat .v { font-size: 1.3rem; font-weight: 700; }
+  .stat .k { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+  .disclaimer { text-align: center; color: var(--muted); font-size: .78rem; margin-top: 1.5rem; }
+  .error { color: var(--danger); text-align: center; margin-top: 1rem; font-size: .9rem; }
+  footer { text-align: center; margin-top: 2rem; color: var(--muted); font-size: .8rem; }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ---- Panneau latéral : simulation de survie ---- */
+  .panel {
+    flex: 0 1 340px;
+    min-width: 280px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    display: none;
+  }
+  .panel.visible { display: block; animation: fadein .6s ease; }
+  .panel h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
+  .panel .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
+  .panel table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .panel th {
+    text-align: left; color: var(--muted); font-weight: 600;
+    padding: .45rem .4rem; border-bottom: 1px solid var(--border); font-size: .72rem;
+  }
+  .panel td { padding: .45rem .4rem; border-bottom: 1px solid var(--border); }
+  .panel tr:last-child td { border-bottom: none; }
+  .panel td.gain { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .panel td.num { color: var(--muted); }
+  .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="container">
+    <h1>Jours <span>Restants</span></h1>
+    <p class="tagline">Le seul compte à rebours que vous ne pourrez jamais mettre en pause.</p>
+
+    <div class="card">
+      <div class="field">
+        <label for="birthdate">Votre date de naissance</label>
+        <input type="date" id="birthdate" required>
+      </div>
+      <div class="field">
+        <label for="sex">Votre sexe (statistiquement, ça change tout)</label>
+        <select id="sex">
+          <option value="H">Homme</option>
+          <option value="F">Femme</option>
+        </select>
+      </div>
+      <button id="btn">Découvrir mon décompte</button>
+      <div class="error" id="error"></div>
+
+      <div id="result">
+        <div class="big-number" id="days"></div>
+        <div class="big-label">jours restants avec 50&nbsp;% de chance</div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
+          <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
+          <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
+          <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge. Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.<br>Consultez un médecin avant de consulter un astrologue&nbsp;— et inversement.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+  </div>
+
+  <aside class="panel" id="panel">
+    <h2>Si vous survivez encore…</h2>
+    <p class="sub">Chaque année survécue repousse la date du grand départ. Le temps acheté, en gros.</p>
+    <table>
+      <thead>
+        <tr><th>Années survécues</th><th>Date de départ</th><th>Gain vs aujourd'hui</th></tr>
+      </thead>
+      <tbody id="sim-body"></tbody>
+    </table>
+    <p class="note">Recalcul complet à chaque année survécue&nbsp;: la date du grand départ recule d'un an, plus une prime de quelques jours, seule véritable monnaie gagnée en survivant. La martingale de l'éternité, version INSEE.</p>
+  </aside>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   Tables de mortalité INSEE 2025 (données provisoires), France.
+   DEC3 — Quotients de mortalité pour 100 000 survivants à l'âge x,
+   par âge atteint dans l'année. Indices : 0 = q(x=0), ..., 100 = q(x=100).
+   https://www.insee.fr/fr/statistiques/8999019
+   ============================================================ */
+const QX = {
+  F: [320,61,19,10,7,9,6,9,9,5,8,5,6,7,11,13,14,15,15,17,21,21,23,20,24,25,26,22,26,24,24,35,34,38,33,46,48,51,47,60,59,72,83,79,94,94,114,114,128,143,168,179,200,211,225,244,281,301,331,360,394,425,460,514,569,619,680,714,751,821,895,975,1060,1152,1245,1333,1467,1654,1813,2125,2322,2687,3074,3481,4027,4749,5379,6150,7126,8044,9278,10717,12283,13915,15783,18327,20490,22380,25592,27448,30036],
+  H: [405,60,23,19,19,12,13,8,9,7,7,8,8,12,13,21,24,30,38,50,61,58,54,63,61,59,68,62,75,74,74,87,71,89,95,101,100,121,117,131,137,155,168,174,189,216,235,229,240,286,329,339,376,420,473,500,526,595,648,715,748,817,897,973,1078,1160,1294,1365,1486,1602,1721,1884,2067,2185,2342,2586,2755,2964,3270,3587,3978,4512,4875,5460,6216,6863,7966,9125,9999,11193,12907,14492,16533,18232,19527,22358,25041,27511,30353,31253,36685]
+};
+
+/* Prolongement au-delà de 100 ans : on extrapole le quotient en
+   multipliant par ~1,09 par an jusqu'à atteindre 1 (table fermée à 120). */
+function buildFullTable(sex) {
+  const t = QX[sex].map(v => v / 100000);
+  // taux de croissance moyen des 10 dernières années observées
+  const n = 10;
+  let g = 1;
+  for (let i = t.length - n; i < t.length; i++) g *= t[i] / t[i - 1];
+  g = Math.pow(g, 1 / n);
+  let q = t[t.length - 1] * g;
+  while (t.length < 121) {
+    t.push(Math.min(q, 1));
+    q *= g;
+    if (q >= 1) q = 1;
+  }
+  return t;
+}
+
+const TABLES = { F: buildFullTable("F"), H: buildFullTable("H") };
+
+/* Probabilité de survivre de la naissance à l'âge exact a (fractionnaire, interpolation log-linéaire). */
+function survivalTo(table, a) {
+  if (a <= 0) return 1;
+  const whole = Math.floor(a);
+  let p = 1;
+  for (let k = 0; k < whole && k < table.length; k++) p *= (1 - table[k]);
+  const frac = a - whole;
+  if (frac > 0 && whole < table.length) {
+    // survie intra-annuelle interpolée géométriquement
+    const pYear = 1 - table[whole];
+    p *= Math.pow(pYear, frac);
+  }
+  return p;
+}
+
+/* Âge médian de décès pour quelqu'un vivant aujourd'hui à l'âge a :
+   plus petit âge m tel que survie(a -> m) <= 0,5. */
+function medianAge(table, a) {
+  const p0 = survivalTo(table, a);
+  let age = a;
+  while (age < 120) {
+    const p = survivalTo(table, age + 1) / p0;
+    if (p <= 0.5) {
+      // interpolation : le point de 50 % tombe entre age et age+1
+      const pEnd = survivalTo(table, age + 1) / p0;
+      const pStart = survivalTo(table, age) / p0;
+      if (pEnd >= pStart) return age + 0.5;
+      return age + (pStart - 0.5 * p0) / (pStart - pEnd);
+    }
+    age++;
+  }
+  return 120;
+}
+
+/* Espérance de vie restante à l'âge a (intégration de la survie, pas de pas 1/12 d'année). */
+function lifeExpectancy(table, a) {
+  const p0 = survivalTo(table, a);
+  let sum = 0;
+  const step = 1 / 12;
+  for (let t = step; a + t < 120; t += step) {
+    sum += survivalTo(table, a + t) / p0 * step;
+  }
+  return sum;
+}
+
+/* Formate une durée en jours de façon lisible : ans / mois / jours. */
+function formatGain(days) {
+  const y = Math.floor(days / 365.2425);
+  const rest = days - y * 365.2425;
+  const m = Math.floor(rest / 30.44);
+  const d = Math.round(rest - m * 30.44);
+  const parts = [];
+  if (y > 0) parts.push(y + (y > 1 ? " ans" : " an"));
+  if (m > 0) parts.push(m + " mois");
+  if (d > 0 || parts.length === 0) parts.push(d + " j");
+  return "+" + parts.join(" ");
+}
+
+document.getElementById("btn").addEventListener("click", () => {
+  const errorEl = document.getElementById("error");
+  const resultEl = document.getElementById("result");
+  const panelEl = document.getElementById("panel");
+  errorEl.textContent = "";
+  resultEl.classList.remove("visible");
+  panelEl.classList.remove("visible");
+
+  const val = document.getElementById("birthdate").value;
+  const sex = document.getElementById("sex").value;
+  if (!val) { errorEl.textContent = "Il faut une date de naissance. Sans elle, vous êtes immortel, et c'est suspect."; return; }
+
+  const birth = new Date(val + "T00:00:00");
+  const now = new Date();
+  if (birth > now) { errorEl.textContent = "Pas encore né ? Patience, le compte à rebours viendra assez vite."; return; }
+
+  const ageDays = (now - birth) / 86400000;
+  const age = ageDays / 365.2425;
+  if (age >= 120) { errorEl.textContent = "Plus de 120 ans ? La table de mortalité se rend, vous avez gagné."; return; }
+
+  const table = TABLES[sex];
+  const medAge = medianAge(table, age);
+  const remainYears = Math.max(0, medAge - age);
+  const remainDays = Math.round(remainYears * 365.2425);
+
+  const deathDate = new Date(now.getTime() + remainDays * 86400000);
+  const expectancy = lifeExpectancy(table, age);
+  const livedFrac = age / medAge * 100;
+
+  document.getElementById("days").textContent = remainDays.toLocaleString("fr-FR");
+  document.getElementById("stat-date").textContent = deathDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  document.getElementById("stat-life").textContent = expectancy.toFixed(1).replace(".", ",") + " ans";
+  document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
+  document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
+
+  /* ---- Simulation : si je survis encore 1 à 10 ans ----
+     On recalcule l'âge médian de décès à partir de l'âge futur (âge + t).
+     La date de départ devient : aujourd'hui + (médiane_future - âge_actuel).
+     Le gain vs aujourd'hui : combien cette date recule par rapport à l'estimation initiale. */
+  const simBody = document.getElementById("sim-body");
+  simBody.textContent = "";
+  for (let t = 1; t <= 10; t++) {
+    const futureAge = age + t;
+    if (futureAge >= 120) break;
+    const medFuture = medianAge(table, futureAge);
+    const depDate = new Date(now.getTime() + (medFuture - age) * 365.2425 * 86400000);
+    const gainDays = Math.round((medFuture - medAge) * 365.2425);
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td");
+    td1.className = "num";
+    td1.textContent = "+" + t + (t > 1 ? " ans" : " an");
+    const td2 = document.createElement("td");
+    td2.textContent = depDate.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+    const td3 = document.createElement("td");
+    td3.className = "gain";
+    td3.textContent = formatGain(gainDays);
+    tr.append(td1, td2, td3);
+    simBody.appendChild(tr);
+  }
+
+  resultEl.classList.add("visible");
+  panelEl.classList.add("visible");
+});
+</script>
+</body>
+</html>
