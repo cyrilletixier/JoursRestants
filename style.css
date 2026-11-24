@@ -254,3 +254,6 @@
   .g-line { stroke: var(--border); }
   .g-curve { stroke: var(--accent); }
   .g-dot { fill: var(--accent); }
+
+  /* Note explicative sous le sélecteur de retraite */
+  .note-inline { color: var(--muted); font-size: .72rem; margin-top: .8rem; line-height: 1.45; }
