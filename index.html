@@ -131,7 +131,7 @@
 
   /* ---- Panneau latéral droite : simulation de survie ---- */
   .panel {
-    order: 3;
+    order: 4;
     flex: 0 1 340px;
     min-width: 280px;
     background: var(--card);
@@ -144,20 +144,12 @@
   .panel.visible { display: block; animation: fadein .6s ease; }
   .panel h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
   .panel .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
-  .panel table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-  .panel th {
-    text-align: left; color: var(--muted); font-weight: 600;
-    padding: .45rem .4rem; border-bottom: 1px solid var(--border); font-size: .72rem;
-  }
-  .panel td { padding: .45rem .4rem; border-bottom: 1px solid var(--border); }
-  .panel tr:last-child td { border-bottom: none; }
-  .panel td.gain { color: var(--accent); font-weight: 600; white-space: nowrap; }
-  .panel td.num { color: var(--muted); }
   .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
+  #sim-chart svg { width: 100%; height: auto; display: block; }
 
   /* ---- Panneau hypothèses médicales IA ---- */
   .hypo {
-    order: 4;
+    order: 3;
     flex: 0 1 340px;
     min-width: 280px;
     background: var(--card);
@@ -181,8 +173,25 @@
   @media (max-width: 1100px) {
     .habits { order: 1; }
     .container { order: 2; }
-    .panel { order: 3; }
+    .hypo { order: 3; }
+    .panel { order: 4; }
   }
+
+  /* ---- Camemberts ---- */
+  .pies { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+  .pie-card {
+    flex: 1 1 240px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .pie-card h3 { font-size: .78rem; color: var(--muted); font-weight: 600; margin-bottom: .5rem; }
+  .pie-svg svg { width: 100%; max-width: 230px; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: .3rem .8rem; justify-content: center; font-size: .72rem; color: var(--muted); margin-top: .6rem; }
+  .legend .dot { display: inline-block; width: .65em; height: .65em; border-radius: 50%; margin-right: .3em; vertical-align: middle; }
+  .legend b { color: var(--text); }
 </style>
 </head>
 <body>
@@ -251,16 +260,22 @@
       <div id="result">
         <div class="big-number" id="days"></div>
         <div class="big-label">jours restants avec 50&nbsp;% de chance</div>
+        <div class="pies">
+          <div class="pie-card">
+            <h3>Votre vie totale, en parts de camembert</h3>
+            <div class="pie-svg" id="pie-life"></div>
+            <div class="legend" id="legend-life"></div>
+          </div>
+          <div class="pie-card">
+            <h3>Les jours restants, en régime équilibré</h3>
+            <div class="pie-svg" id="pie-days"></div>
+            <div class="legend" id="legend-days"></div>
+          </div>
+        </div>
         <div class="stats">
           <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
           <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
-          <div class="stat"><div class="v" id="stat-habits"></div><div class="k">bonus / malus comportements vs Français moyen</div></div>
-          <div class="stat"><div class="v" id="stat-ia"></div><div class="k">bonus hypothèses médicales (IA)</div></div>
-          <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
           <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
-          <div class="stat"><div class="v" id="stat-study"></div><div class="k">jours d'études restants (partiels compris)</div></div>
-          <div class="stat"><div class="v" id="stat-work"></div><div class="k">jours à travailler (≈ 228 jours ouvrés/an)</div></div>
-          <div class="stat"><div class="v bonus" id="stat-slack"></div><div class="k">jours à glander (le reste, tout le reste)</div></div>
         </div>
       </div>
     </div>
@@ -269,26 +284,21 @@
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
   </div>
 
-  <aside class="panel" id="panel">
-    <h2>Si vous survivez encore…</h2>
-    <p class="sub">Chaque année survécue repousse la date du grand départ, comportements inclus. Le temps acheté, en gros.</p>
-    <table>
-      <thead>
-        <tr><th>Années survécues</th><th>Date de départ</th><th>Gain vs aujourd'hui</th></tr>
-      </thead>
-      <tbody id="sim-body"></tbody>
-    </table>
-    <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
-  </aside>
-
   <aside class="hypo">
     <h2>Futurologie assistée par IA</h2>
-    <p class="sub">Et si l'IA guérissait les trois premières causes de décès en France ? Cochez, recalculz, rêvez un peu. Toutes choses égales par ailleurs, béton armé inclus.</p>
+    <p class="sub">Et si l'IA guérissait les trois premières causes de décès en France ? Cochez, recalculez, rêvez un peu. Toutes choses égales par ailleurs, béton armé inclus.</p>
     <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
     <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
     <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
     <p class="note">Part du risque de décès éliminée par cause et par âge, en ordre de grandeur Inserm CépiDc (cancers ~26&nbsp;/&nbsp;15&nbsp;%, cardio ~20&nbsp;/&nbsp;28&nbsp;%, neuro ~8&nbsp;/&nbsp;18&nbsp;%, avant/après 75 ans). Même entièrement guéri, la sénescence et le reste du catalogue continuent leur travail&nbsp;: l'immortalité est repoussée, pas annulée.</p>
   </aside>
+  <aside class="panel" id="panel">
+    <h2>Si vous survivez encore…</h2>
+    <p class="sub">De 0 à 30 ans survécus : de combien la date du grand départ recule-t-elle ? Comportements et hypothèses IA inclus. La pente, c'est de la vie vendue au prix fort.</p>
+    <div id="sim-chart"></div>
+    <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
+  </aside>
+
 </div>
 
 <script>
@@ -467,20 +477,68 @@ function lifeExpectancyRemaining(eff, a) {
   return sum;
 }
 
-/* Formate une durée en jours de façon lisible : ans / mois / jours. */
-function formatGain(days) {
-  if (days === 0) return "± 0 j";
-  const sign = days > 0 ? "+" : "-";
-  const d = Math.abs(days);
-  const y = Math.floor(d / 365.2425);
-  const rest = d - y * 365.2425;
-  const m = Math.floor(rest / 30.44);
-  const dd = Math.round(rest - m * 30.44);
-  const parts = [];
-  if (y > 0) parts.push(y + (y > 1 ? " ans" : " an"));
-  if (m > 0) parts.push(m + " mois");
-  if (dd > 0 || parts.length === 0) parts.push(dd + " j");
-  return sign + parts.join(" ");
+/* Formate un gain (ou une perte) en années : « +2,3 ans » / « -1,2 an ». */
+function yearsFmt(y) {
+  const sign = y >= 0 ? "+" : "-";
+  const a = Math.abs(y);
+  return sign + a.toFixed(1).replace(".", ",") + (a >= 2 ? " ans" : " an");
+}
+
+/* Camembert SVG : segments [{value, color}], textes centraux. */
+function donutSVG(segs, centerMain, centerSub) {
+  const total = segs.reduce((s, x) => s + x.value, 0);
+  if (total <= 0) return "";
+  const C = 2 * Math.PI * 48;
+  let offset = 0, circles = "";
+  for (const s of segs) {
+    if (s.value <= 0) continue;
+    const len = (s.value / total) * C;
+    circles += '<circle cx="60" cy="60" r="48" fill="none" stroke="' + s.color +
+      '" stroke-width="15" stroke-dasharray="' + len.toFixed(2) + " " + (C - len).toFixed(2) +
+      '" stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
+    offset += len;
+  }
+  return '<svg viewBox="0 0 120 120" role="img"><g transform="rotate(-90 60 60)">' + circles + "</g>" +
+    '<text x="60" y="58" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
+    '<text x="60" y="71" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
+}
+
+/* Légende : lignes [{label, disp, color}]. */
+function legendHTML(rows) {
+  return rows.map(r =>
+    '<span><i class="dot" style="background:' + r.color + '"></i>' + r.label +
+    '&nbsp;<b>' + r.disp + "</b></span>"
+  ).join("");
+}
+
+/* Courbe SVG : gain de date de départ selon les années survécues (0 à 30 ans). */
+function gainCurveSVG(data) {
+  const W = 340, H = 210, L = 40, R = 14, T = 16, B = 32;
+  const maxT = 30;
+  const maxG = Math.max(5, Math.ceil(Math.max.apply(null, data.map(d => d.g)) + 0.5));
+  const x = t => L + (W - L - R) * (t / maxT);
+  const y = g => H - B - (H - B - T) * (g / maxG);
+  let grid = "", labels = "";
+  for (let gy = 0; gy <= maxG; gy += 5) {
+    grid += '<line x1="' + L + '" y1="' + y(gy) + '" x2="' + (W - R) + '" y2="' + y(gy) + '" stroke="#262c35" stroke-width="1"/>';
+    labels += '<text x="' + (L - 6) + '" y="' + (y(gy) + 3) + '" text-anchor="end" fill="#8b929c" font-size="9">' + gy + "</text>";
+  }
+  for (let t = 0; t <= maxT; t += 5) {
+    labels += '<text x="' + x(t) + '" y="' + (H - B + 14) + '" text-anchor="middle" fill="#8b929c" font-size="9">' + t + "</text>";
+  }
+  let path = "";
+  data.forEach((d, i) => { path += (i ? "L" : "M") + x(d.t).toFixed(1) + "," + y(d.g).toFixed(1) + " "; });
+  const last = data[data.length - 1];
+  const area = path + "L" + x(last.t).toFixed(1) + "," + y(0).toFixed(1) + " L" + x(0).toFixed(1) + "," + y(0).toFixed(1) + " Z";
+  let dots = "";
+  for (const d of data) {
+    if (d.t % 10 === 0 || d.t === last.t) dots += '<circle cx="' + x(d.t).toFixed(1) + '" cy="' + y(d.g).toFixed(1) + '" r="2.6" fill="#7ec8a9"/>';
+  }
+  dots += '<text x="' + (x(last.t) - 5) + '" y="' + (y(last.g) - 8) + '" text-anchor="end" fill="#7ec8a9" font-size="10" font-weight="700">' + yearsFmt(last.g) + "</text>";
+  return '<svg viewBox="0 0 ' + W + " " + H + '" role="img">' + grid +
+    '<path d="' + area + '" fill="rgba(126,200,169,.12)"/>' + labels +
+    '<path d="' + path + '" fill="none" stroke="#7ec8a9" stroke-width="2.2"/>' + dots +
+    '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" fill="#8b929c" font-size="9">années survécues</text></svg>';
 }
 
 document.getElementById("btn").addEventListener("click", () => {
@@ -517,18 +575,10 @@ document.getElementById("btn").addEventListener("click", () => {
   const deathDate = new Date(now.getTime() + remainDays * 86400000);
   const expectancy = lifeExpectancyRemaining(eff, age);
   const medAgeAbsolute = age + remainYears;
-  const livedFrac = age / medAgeAbsolute * 100;
 
   document.getElementById("days").textContent = remainDays.toLocaleString("fr-FR");
   document.getElementById("stat-date").textContent = deathDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
   document.getElementById("stat-life").textContent = expectancy.toFixed(1).replace(".", ",") + " ans";
-  const habitsEl = document.getElementById("stat-habits");
-  habitsEl.textContent = formatGain(habitDelta);
-  habitsEl.className = "v " + (habitDelta >= 0 ? "bonus" : "malus");
-  const iaEl = document.getElementById("stat-ia");
-  iaEl.textContent = formatGain(iaDelta);
-  iaEl.className = "v " + (iaDelta >= 0 ? "bonus" : "malus");
-  document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
   document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
 
   /* ---- Répartition statistique du temps restant ----
@@ -545,37 +595,62 @@ document.getElementById("btn").addEventListener("click", () => {
   const studyDays = age < FIN_ETUDES ? Math.round((FIN_ETUDES - age) * 365.2425) : 0;
   const workDays = age < RETRAITE ? Math.round(Math.max(0, RETRAITE - Math.max(age, FIN_ETUDES)) * JOURS_OUVRRES_AN) : 0;
   const slackDays = Math.max(0, remainDays - studyDays - workDays);
-  document.getElementById("stat-study").textContent = studyDays.toLocaleString("fr-FR");
-  document.getElementById("stat-work").textContent = workDays.toLocaleString("fr-FR");
-  document.getElementById("stat-slack").textContent = slackDays.toLocaleString("fr-FR");
+
+  /* ---- Camembert 1 : la vie totale, en parts de marché de la Faucheuse ----
+     Le disque entier = l'âge médian de décès avec vos réglages.
+     Parts : déjà dépensée, restant de référence (Français moyen),
+     gain ou perte dû aux comportements (la perte rogne le restant),
+     bonus des guérisons IA. La somme des parts retombe toujours
+     sur l'âge médian total : la géométrie ne pardonne pas plus que
+     la biologie. */
+  const DPA = 365.2425;
+  const C_VEcu = "#3d434c", C_REST = "#5b8bd0", C_HAB_POS = "#7ec8a9", C_HAB_NEG = "#e06c5f", C_IA = "#b58ee0";
+  const livedY = age;
+  const remainNeutralY = remainNeutralDays / DPA;
+  const habitY = habitDelta / DPA;
+  const iaY = iaDelta / DPA;
+  const blueY = remainNeutralY + Math.min(habitY, 0);
+  const segsLife = [
+    { label: "Déjà dépensée", value: livedY, color: C_VEcu, disp: livedY.toFixed(1).replace(".", ",") + " ans" },
+    { label: "Restant (réf. moyen)", value: blueY, color: C_REST, disp: blueY.toFixed(1).replace(".", ",") + " ans" }
+  ];
+  if (habitY < 0) segsLife.push({ label: "Perte comportements", value: -habitY, color: C_HAB_NEG, disp: yearsFmt(habitY) });
+  if (habitY > 0) segsLife.push({ label: "Bonus comportements", value: habitY, color: C_HAB_POS, disp: yearsFmt(habitY) });
+  if (iaY > 0) segsLife.push({ label: "Bonus guérisons IA", value: iaY, color: C_IA, disp: yearsFmt(iaY) });
+  document.getElementById("pie-life").innerHTML = donutSVG(segsLife, medAgeAbsolute.toFixed(1).replace(".", ",") + " ans", "vie totale médiane");
+  document.getElementById("legend-life").innerHTML = legendHTML(segsLife);
+
+  /* ---- Camembert 2 : les jours restants, ventilés en études,
+     travail et glandouille. Le régime équilibré de la décence. ---- */
+  const C_ETUDE = "#e0b458", C_TRAVAIL = "#5b8bd0", C_GLAND = "#7ec8a9";
+  const segsDays = [
+    { label: "Études", value: studyDays, color: C_ETUDE, disp: studyDays.toLocaleString("fr-FR") + " j" },
+    { label: "Travail", value: workDays, color: C_TRAVAIL, disp: workDays.toLocaleString("fr-FR") + " j" },
+    { label: "Glandouille", value: slackDays, color: C_GLAND, disp: slackDays.toLocaleString("fr-FR") + " j" }
+  ];
+  document.getElementById("pie-days").innerHTML = donutSVG(segsDays, remainDays.toLocaleString("fr-FR"), "jours restants à 50 %");
 
   /* ---- Simulation : si je survis encore 1 à 10 ans ----
      On décale l'âge et on recalcule avec les mêmes comportements.
      Pour « j'arrête aujourd'hui », les années survécues font aussi décroître
      le surplus de risque tabagique : tenir bon rapporte deux fois. */
-  const simBody = document.getElementById("sim-body");
-  simBody.textContent = "";
-  for (let t = 1; t <= 10; t++) {
+  /* ---- Courbe : si je survis de 0 à 30 ans ----
+     On décale l'âge et on recalcule la médiane à chaque échelon,
+     comportements et hypothèses IA inclus. Pour « j'arrête
+     aujourd'hui », les années survécues accélèrent la décroissance
+     du risque tabagique : tenir bon rapporte deux fois. */
+  const chartEl = document.getElementById("sim-chart");
+  const tCap = Math.min(30, Math.max(1, Math.floor(118 - age)));
+  const dataPts = [];
+  for (let t = 0; t <= tCap; t++) {
     const futureAge = age + t;
-    if (futureAge >= 120) break;
-    // refreeze : à la date future, on recalcule la table avec m(k) repartant de 0,
-    // mais le temps survécu compte dans la décroissance tabac via l'âge décalé.
     const effT = effectiveTable(sex, futureAge, hazardMultipliers(futureAge, sex));
     const medT = medianRemaining(effT, futureAge);
-    const depDate = new Date(now.getTime() + (t + medT) * 365.2425 * 86400000);
-    const gainDays = Math.round(((t + medT) - remainYears) * 365.2425);
-    const tr = document.createElement("tr");
-    const td1 = document.createElement("td");
-    td1.className = "num";
-    td1.textContent = "+" + t + (t > 1 ? " ans" : " an");
-    const td2 = document.createElement("td");
-    td2.textContent = depDate.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-    const td3 = document.createElement("td");
-    td3.className = "gain";
-    td3.textContent = formatGain(gainDays);
-    tr.append(td1, td2, td3);
-    simBody.appendChild(tr);
+    dataPts.push({ t: t, g: (t + medT) - remainYears });
   }
+  chartEl.innerHTML = dataPts.length > 1
+    ? gainCurveSVG(dataPts)
+    : "<p class='sub'>Le graphique s'incline devant votre longévité : chaque jour est déjà un exploit statistique.</p>";
 
   resultEl.classList.add("visible");
   panelEl.classList.add("visible");
