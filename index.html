@@ -26,7 +26,8 @@
     justify-content: center;
     padding: 2rem 1rem;
   }
-  .container { width: 100%; max-width: 720px; }
+  .layout { width: 100%; max-width: 1100px; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+  .container { flex: 1 1 480px; min-width: 320px; }
   h1 {
     font-size: clamp(1.8rem, 5vw, 2.6rem);
     letter-spacing: 2px;
@@ -93,42 +94,81 @@
   .error { color: var(--danger); text-align: center; margin-top: 1rem; font-size: .9rem; }
   footer { text-align: center; margin-top: 2rem; color: var(--muted); font-size: .8rem; }
   footer a { color: var(--accent); text-decoration: none; }
+
+  /* ---- Panneau latéral : simulation de survie ---- */
+  .panel {
+    flex: 0 1 340px;
+    min-width: 280px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    display: none;
+  }
+  .panel.visible { display: block; animation: fadein .6s ease; }
+  .panel h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
+  .panel .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
+  .panel table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .panel th {
+    text-align: left; color: var(--muted); font-weight: 600;
+    padding: .45rem .4rem; border-bottom: 1px solid var(--border); font-size: .72rem;
+  }
+  .panel td { padding: .45rem .4rem; border-bottom: 1px solid var(--border); }
+  .panel tr:last-child td { border-bottom: none; }
+  .panel td.gain { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .panel td.num { color: var(--muted); }
+  .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Jours <span>Restants</span></h1>
-  <p class="tagline">Le seul compte à rebours que vous ne pourrez jamais mettre en pause.</p>
+<div class="layout">
+  <div class="container">
+    <h1>Jours <span>Restants</span></h1>
+    <p class="tagline">Le seul compte à rebours que vous ne pourrez jamais mettre en pause.</p>
 
-  <div class="card">
-    <div class="field">
-      <label for="birthdate">Votre date de naissance</label>
-      <input type="date" id="birthdate" required>
-    </div>
-    <div class="field">
-      <label for="sex">Votre sexe (statistiquement, ça change tout)</label>
-      <select id="sex">
-        <option value="H">Homme</option>
-        <option value="F">Femme</option>
-      </select>
-    </div>
-    <button id="btn">Découvrir mon décompte</button>
-    <div class="error" id="error"></div>
+    <div class="card">
+      <div class="field">
+        <label for="birthdate">Votre date de naissance</label>
+        <input type="date" id="birthdate" required>
+      </div>
+      <div class="field">
+        <label for="sex">Votre sexe (statistiquement, ça change tout)</label>
+        <select id="sex">
+          <option value="H">Homme</option>
+          <option value="F">Femme</option>
+        </select>
+      </div>
+      <button id="btn">Découvrir mon décompte</button>
+      <div class="error" id="error"></div>
 
-    <div id="result">
-      <div class="big-number" id="days"></div>
-      <div class="big-label">jours restants avec 50&nbsp;% de chance</div>
-      <div class="stats">
-        <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
-        <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
-        <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
-        <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
+      <div id="result">
+        <div class="big-number" id="days"></div>
+        <div class="big-label">jours restants avec 50&nbsp;% de chance</div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
+          <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
+          <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
+          <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
+        </div>
       </div>
     </div>
+
+    <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge. Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.<br>Consultez un médecin avant de consulter un astrologue&nbsp;— et inversement.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
   </div>
 
-  <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge. Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.<br>Consultez un médecin avant de consulter un astrologue&nbsp;— et inversement.</p>
-  <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+  <aside class="panel" id="panel">
+    <h2>Si vous survivez encore…</h2>
+    <p class="sub">Chaque année survécue repousse la date du grand départ. Le temps acheté, en gros.</p>
+    <table>
+      <thead>
+        <tr><th>Années survécues</th><th>Date de départ</th><th>Gain vs aujourd'hui</th></tr>
+      </thead>
+      <tbody id="sim-body"></tbody>
+    </table>
+    <p class="note">Recalcul complet à chaque année survécue&nbsp;: la date du grand départ recule d'un an, plus une prime de quelques jours, seule véritable monnaie gagnée en survivant. La martingale de l'éternité, version INSEE.</p>
+  </aside>
 </div>
 
 <script>
@@ -210,11 +250,26 @@ function lifeExpectancy(table, a) {
   return sum;
 }
 
+/* Formate une durée en jours de façon lisible : ans / mois / jours. */
+function formatGain(days) {
+  const y = Math.floor(days / 365.2425);
+  const rest = days - y * 365.2425;
+  const m = Math.floor(rest / 30.44);
+  const d = Math.round(rest - m * 30.44);
+  const parts = [];
+  if (y > 0) parts.push(y + (y > 1 ? " ans" : " an"));
+  if (m > 0) parts.push(m + " mois");
+  if (d > 0 || parts.length === 0) parts.push(d + " j");
+  return "+" + parts.join(" ");
+}
+
 document.getElementById("btn").addEventListener("click", () => {
   const errorEl = document.getElementById("error");
   const resultEl = document.getElementById("result");
+  const panelEl = document.getElementById("panel");
   errorEl.textContent = "";
   resultEl.classList.remove("visible");
+  panelEl.classList.remove("visible");
 
   const val = document.getElementById("birthdate").value;
   const sex = document.getElementById("sex").value;
@@ -243,7 +298,33 @@ document.getElementById("btn").addEventListener("click", () => {
   document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
   document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
 
+  /* ---- Simulation : si je survis encore 1 à 10 ans ----
+     On recalcule l'âge médian de décès à partir de l'âge futur (âge + t).
+     La date de départ devient : aujourd'hui + (médiane_future - âge_actuel).
+     Le gain vs aujourd'hui : combien cette date recule par rapport à l'estimation initiale. */
+  const simBody = document.getElementById("sim-body");
+  simBody.textContent = "";
+  for (let t = 1; t <= 10; t++) {
+    const futureAge = age + t;
+    if (futureAge >= 120) break;
+    const medFuture = medianAge(table, futureAge);
+    const depDate = new Date(now.getTime() + (medFuture - age) * 365.2425 * 86400000);
+    const gainDays = Math.round((medFuture - medAge) * 365.2425);
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td");
+    td1.className = "num";
+    td1.textContent = "+" + t + (t > 1 ? " ans" : " an");
+    const td2 = document.createElement("td");
+    td2.textContent = depDate.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+    const td3 = document.createElement("td");
+    td3.className = "gain";
+    td3.textContent = formatGain(gainDays);
+    tr.append(td1, td2, td3);
+    simBody.appendChild(tr);
+  }
+
   resultEl.classList.add("visible");
+  panelEl.classList.add("visible");
 });
 </script>
 </body>
