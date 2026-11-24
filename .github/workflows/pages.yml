@@ -32,3 +32,23 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      # Nouvelle tentative automatique : l'API Pages de GitHub échoue
+      # de façon transitoire ("artifact metadata failed"). On réessaie
+      # après une pause, la méthode officielle recommandée.
+      - name: Pause avant nouvelle tentative
+        if: failure()
+        run: sleep 45
+      - name: Nouvelle tentative de déploiement
+        id: deployment-retry
+        if: failure()
+        uses: actions/deploy-pages@v4
+      - name: Dernière tentative (après longue pause)
+        id: deployment-retry-2
+        if: failure()
+        run: |
+          sleep 90
+          echo "Troisième salve dans 90 secondes."
+      - name: Déploiement final
+        id: deployment-final
+        if: failure()
+        uses: actions/deploy-pages@v4
