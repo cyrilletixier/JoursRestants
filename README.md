@@ -12,6 +12,10 @@ Entrez votre date de naissance et découvrez combien de jours il vous reste à v
 
 Un panneau latéral recalcule la date du grand départ si vous survivez encore de 1 à 10 ans : chaque année survécue recule la date d'un an, plus une petite prime statistique de quelques jours. Survivre reste rentable, juste pas autant que l'optimisme le prétend.
 
+## Comportements
+
+Le panneau de gauche ajuste le calcul selon les trois comportements les plus déterminants pour la durée de vie : tabac, alcool, activité physique. Les multiplicateurs de risque sont calibrés sur Doll et al. (BMJ 2004), Wood et al. (The Lancet 2018) et Moore et al. (PLoS Medicine 2012). Le paquet « fumeur + alcool au-delà du modéré + sédentaire » coûte environ 17 ans statistiques : le seul abonnement dont l'annulation rapporte.
+
 ## Utilisation
 
 Ouvrez simplement `index.html` dans n'importe quel navigateur, ou la version publiée sur GitHub Pages : https://cyrilletixier.github.io/JoursRestants/
