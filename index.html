@@ -172,7 +172,7 @@ function hazardMultipliers(ageNow, sex) {
 function donutSVG(segs, centerMain, centerSub) {
   const total = segs.reduce((s, x) => s + x.value, 0);
   if (total <= 0) return "";
-  const cx = 70, cy = 62, R = 44, SW = 13;
+  const cx = 75, cy = 66, R = 44, SW = 13;
   const C = 2 * Math.PI * R;
   let offset = 0, circles = "", pctLabels = "";
   for (const s of segs) {
@@ -185,15 +185,15 @@ function donutSVG(segs, centerMain, centerSub) {
     const pct = (s.value / total) * 100;
     if (pct >= 3) {
       const th = ((offset + len / 2) / C) * 2 * Math.PI - Math.PI / 2;
-      const lx = (cx + 54.5 * Math.cos(th)).toFixed(1);
-      const ly = (cy + 54.5 * Math.sin(th) + 3).toFixed(1);
+      const lx = (cx + 60 * Math.cos(th)).toFixed(1);
+      const ly = (cy + 60 * Math.sin(th) + 3).toFixed(1);
       pctLabels += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" fill="' + s.color + '" font-size="8.5" font-weight="700">' + pct.toFixed(0) + " %</text>";
     }
     offset += len;
   }
-  return '<svg viewBox="0 0 140 124" role="img"><g transform="rotate(-90 70 62)">' + circles + "</g>" + pctLabels +
-    '<text class="ctr-main" x="70" y="60" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
-    '<text class="ctr-sub" x="70" y="73" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
+  return '<svg viewBox="0 0 150 132" role="img"><g transform="rotate(-90 75 66)">' + circles + "</g>" + pctLabels +
+    '<text class="ctr-main" x="75" y="64" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
+    '<text class="ctr-sub" x="75" y="77" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
 }
 
 /* Courbe SVG : gain de date de départ selon les années survécues (0 à 30 ans). */
