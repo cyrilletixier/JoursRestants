@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jours Restants — Combien de jours vous reste-t-il ?</title>
-<meta name="description" content="Entrez votre date de naissance et découvrez combien de jours il vous reste à vivre avec 50 % de chance, d'après les tables de mortalité de l'INSEE.">
+<meta name="description" content="Entrez votre date de naissance et découvrez combien de jours il vous reste à vivre avec 50 % de chance, d'après les tables de mortalité de l'INSEE et vos comportements.">
 <style>
   :root {
     --bg: #0d0f12;
@@ -26,8 +26,8 @@
     justify-content: center;
     padding: 2rem 1rem;
   }
-  .layout { width: 100%; max-width: 1100px; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
-  .container { flex: 1 1 480px; min-width: 320px; }
+  .layout { width: 100%; max-width: 1400px; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+  .container { flex: 1 1 480px; min-width: 320px; order: 2; }
   h1 {
     font-size: clamp(1.8rem, 5vw, 2.6rem);
     letter-spacing: 2px;
@@ -89,14 +89,49 @@
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
   .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
   .stat .v { font-size: 1.3rem; font-weight: 700; }
+  .stat .v.bonus { color: var(--accent); }
+  .stat .v.malus { color: var(--danger); }
   .stat .k { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
   .disclaimer { text-align: center; color: var(--muted); font-size: .78rem; margin-top: 1.5rem; }
   .error { color: var(--danger); text-align: center; margin-top: 1rem; font-size: .9rem; }
   footer { text-align: center; margin-top: 2rem; color: var(--muted); font-size: .8rem; }
   footer a { color: var(--accent); text-decoration: none; }
 
-  /* ---- Panneau latéral : simulation de survie ---- */
+  /* ---- Panneau comportements (gauche) ---- */
+  .habits {
+    order: 1;
+    flex: 0 1 300px;
+    min-width: 270px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    align-self: flex-start;
+  }
+  .habits h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
+  .habits .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
+  .habit-group { margin-bottom: 1.3rem; }
+  .habit-group:last-of-type { margin-bottom: 0; }
+  .habit-group h3 { font-size: .85rem; margin-bottom: .5rem; color: var(--text); }
+  .habit-group .src { color: var(--muted); font-size: .7rem; font-weight: 400; }
+  .radio-row { display: block; position: relative; margin-bottom: .35rem; }
+  .radio-row input { position: absolute; opacity: 0; }
+  .radio-row span {
+    display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+    padding: .5rem .7rem; border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; font-size: .82rem; background: var(--bg);
+    transition: border-color .15s ease;
+  }
+  .radio-row span:hover { border-color: var(--accent); }
+  .radio-row input:checked + span { border-color: var(--accent); background: rgba(126,200,169,.12); }
+  .radio-row .impact { color: var(--muted); font-size: .72rem; white-space: nowrap; }
+  .radio-row .impact.bad { color: var(--danger); }
+  .radio-row .impact.good { color: var(--accent); }
+
+  /* ---- Panneau latéral droite : simulation de survie ---- */
   .panel {
+    order: 3;
     flex: 0 1 340px;
     min-width: 280px;
     background: var(--card);
@@ -119,10 +154,44 @@
   .panel td.gain { color: var(--accent); font-weight: 600; white-space: nowrap; }
   .panel td.num { color: var(--muted); }
   .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
+
+  @media (max-width: 1100px) {
+    .habits { order: 1; }
+    .container { order: 2; }
+    .panel { order: 3; }
+  }
 </style>
 </head>
 <body>
 <div class="layout">
+
+  <aside class="habits">
+    <h2>Vos petites habitudes</h2>
+    <p class="sub">Les trois comportements qui déplacent le plus la date. La bistrot-science, mais chiffrée.</p>
+
+    <div class="habit-group">
+      <h3>Cigarettes</h3>
+      <label class="radio-row"><input type="radio" name="tabac" value="jamais" checked><span>Jamais fumé<b class="impact good">réf.</b></span></label>
+      <label class="radio-row"><input type="radio" name="tabac" value="fume"><span>Je fume<b class="impact bad">-10 ans</b></span></label>
+      <label class="radio-row"><input type="radio" name="tabac" value="arrete"><span>J'ai fumé, j'ai arrêté<b class="impact bad">-2 ans</b></span></label>
+      <label class="radio-row"><input type="radio" name="tabac" value="aujourdhui"><span>J'arrête aujourd'hui<b class="impact good">la remise de sa vie</b></span></label>
+    </div>
+
+    <div class="habit-group">
+      <h3>Alcool</h3>
+      <label class="radio-row"><input type="radio" name="alcool" value="occas" checked><span>Jamais ou occasionnellement<b class="impact">réf.</b></span></label>
+      <label class="radio-row"><input type="radio" name="alcool" value="modere"><span>Modéré (≤ 2 verres/jour)<b class="impact">~réf.</b></span></label>
+      <label class="radio-row"><input type="radio" name="alcool" value="fort"><span>Nettement plus que modéré<b class="impact bad">-4 ans</b></span></label>
+    </div>
+
+    <div class="habit-group">
+      <h3>Activité physique</h3>
+      <label class="radio-row"><input type="radio" name="sport" value="regulier"><span>Régulière (le corps dit merci)<b class="impact good">+3 ans</b></span></label>
+      <label class="radio-row"><input type="radio" name="sport" value="parfois" checked><span>De temps en temps<b class="impact">réf.</b></span></label>
+      <label class="radio-row"><input type="radio" name="sport" value="sedentaire"><span>Sédentaire (le canapé dit merci)<b class="impact bad">-3 ans</b></span></label>
+    </div>
+  </aside>
+
   <div class="container">
     <h1>Jours <span>Restants</span></h1>
     <p class="tagline">Le seul compte à rebours que vous ne pourrez jamais mettre en pause.</p>
@@ -148,26 +217,27 @@
         <div class="stats">
           <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
           <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
+          <div class="stat"><div class="v" id="stat-habits"></div><div class="k">bonus / malus comportements vs Français moyen</div></div>
           <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
           <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
         </div>
       </div>
     </div>
 
-    <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge. Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.<br>Consultez un médecin avant de consulter un astrologue&nbsp;— et inversement.</p>
+    <p class="disclaimer">Basé sur les tables de mortalité 2025 (provisoires) de l'INSEE, quotients par sexe et âge, ajustées des trois comportements les plus déterminants selon la littérature épidémiologique : tabac (Doll et al., BMJ 2004), alcool (Wood et al., The Lancet 2018), activité physique (Moore et al., PLoS Medicine 2012). Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent.</p>
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
   </div>
 
   <aside class="panel" id="panel">
     <h2>Si vous survivez encore…</h2>
-    <p class="sub">Chaque année survécue repousse la date du grand départ. Le temps acheté, en gros.</p>
+    <p class="sub">Chaque année survécue repousse la date du grand départ, comportements inclus. Le temps acheté, en gros.</p>
     <table>
       <thead>
         <tr><th>Années survécues</th><th>Date de départ</th><th>Gain vs aujourd'hui</th></tr>
       </thead>
       <tbody id="sim-body"></tbody>
     </table>
-    <p class="note">Recalcul complet à chaque année survécue&nbsp;: la date du grand départ recule d'un an, plus une prime de quelques jours, seule véritable monnaie gagnée en survivant. La martingale de l'éternité, version INSEE.</p>
+    <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
   </aside>
 </div>
 
@@ -189,7 +259,6 @@ const QX = {
    multipliant par ~1,09 par an jusqu'à atteindre 1 (table fermée à 120). */
 function buildFullTable(sex) {
   const t = QX[sex].map(v => v / 100000);
-  // taux de croissance moyen des 10 dernières années observées
   const n = 10;
   let g = 1;
   for (let i = t.length - n; i < t.length; i++) g *= t[i] / t[i - 1];
@@ -205,62 +274,105 @@ function buildFullTable(sex) {
 
 const TABLES = { F: buildFullTable("F"), H: buildFullTable("H") };
 
-/* Probabilité de survivre de la naissance à l'âge exact a (fractionnaire, interpolation log-linéaire). */
-function survivalTo(table, a) {
-  if (a <= 0) return 1;
-  const whole = Math.floor(a);
+/* ============================================================
+   Comportements : multiplicateurs de risque (hazard ratios) appliqués
+   au hazard de mortalité INSEE, en référence au Français moyen.
+   Tabac   : Doll et al., BMJ 2004 (fumeur ~10 ans perdus ; arrêt → récupération)
+   Alcool  : Wood et al., The Lancet 2018 (forte consommation ~4-5 ans perdus)
+   Pattern : Moore et al., PLoS Medicine 2012 (sédentaire ~-3 ans ; actif ~+3 ans)
+   Le hazard ajusté est q' = 1 - (1-q)^m.
+   ============================================================ */
+
+/* Renoncement au tabac « j'arrête aujourd'hui » : le surplus de risque
+   du fumeur (m 2,5) décroît vers le niveau d'un ancien fumeur (m 1,25),
+   avec une demi-vie d'environ 5 ans. */
+function hazardMultipliers(ageNow) {
+  const tabac = document.querySelector('input[name="tabac"]:checked').value;
+  const alcool = document.querySelector('input[name="alcool"]:checked').value;
+  const sport = document.querySelector('input[name="sport"]:checked').value;
+
+  let mTabac;
+  if (tabac === "fume") mTabac = () => 2.5;
+  else if (tabac === "arrete") mTabac = () => 1.25;
+  else if (tabac === "aujourdhui") mTabac = (k) => 1.25 + (2.5 - 1.25) * Math.exp(-k / 7);
+  else mTabac = () => 1.0;
+
+  const mAlcool = alcool === "fort" ? () => 1.4 : (alcool === "modere" ? () => 1.05 : () => 1.0);
+  const mSport = sport === "sedentaire" ? () => 1.3 : (sport === "regulier" ? () => 0.85 : () => 1.0);
+
+  // m(k) : hazard ratio k années après aujourd'hui
+  return (k) => mTabac(k) * mAlcool(k) * mSport(k);
+}
+
+/* Table effective : qx ajusté à l'âge absolu i (k = i - âge actuel).
+   Les comportements ne modulent que les années à venir ; le passé est acquis. */
+function effectiveTable(sex, ageNow, mfun) {
+  const base = TABLES[sex];
+  return base.map((q, i) => {
+    if (i < ageNow || i < 18) return q;
+    const m = mfun(i - ageNow);
+    return 1 - Math.pow(1 - q, m);
+  });
+}
+
+/* Survie de l'âge a à l'âge a+t, sous la table effective (interpolation géométrique intra-annuelle). */
+function survFrom(eff, a, t) {
+  if (t <= 0) return 1;
   let p = 1;
-  for (let k = 0; k < whole && k < table.length; k++) p *= (1 - table[k]);
-  const frac = a - whole;
-  if (frac > 0 && whole < table.length) {
-    // survie intra-annuelle interpolée géométriquement
-    const pYear = 1 - table[whole];
-    p *= Math.pow(pYear, frac);
+  let idx = Math.floor(a);
+  const frac = a - idx; // partie déjà vécue de l'année idx
+  if (t <= 1 - frac) return Math.pow(1 - eff[Math.min(idx, eff.length - 1)], t);
+  if (frac > 0) {
+    p *= Math.pow(1 - eff[idx], 1 - frac);
+    t -= (1 - frac);
+    idx++;
   }
+  while (t >= 1 && idx < eff.length) {
+    p *= (1 - eff[idx]);
+    idx++;
+    t -= 1;
+  }
+  if (t > 0 && idx < eff.length) p *= Math.pow(1 - eff[idx], t);
   return p;
 }
 
-/* Âge médian de décès pour quelqu'un vivant aujourd'hui à l'âge a :
-   plus petit âge m tel que survie(a -> m) <= 0,5. */
-function medianAge(table, a) {
-  const p0 = survivalTo(table, a);
-  let age = a;
-  while (age < 120) {
-    const p = survivalTo(table, age + 1) / p0;
-    if (p <= 0.5) {
-      // interpolation : le point de 50 % tombe entre age et age+1
-      const pEnd = survivalTo(table, age + 1) / p0;
-      const pStart = survivalTo(table, age) / p0;
-      if (pEnd >= pStart) return age + 0.5;
-      return age + (pStart - 0.5 * p0) / (pStart - pEnd);
+/* Temps médian restant : plus petit t tel que survie(a -> a+t) <= 0,5. */
+function medianRemaining(eff, a) {
+  let t = 0;
+  while (t < 120 - a) {
+    if (survFrom(eff, a, t + 1) <= 0.5) {
+      const pBefore = survFrom(eff, a, t);
+      const pAfter = survFrom(eff, a, t + 1);
+      if (pAfter >= pBefore) return t + 0.5;
+      return t + (pBefore - 0.5) / (pBefore - pAfter);
     }
-    age++;
+    t++;
   }
-  return 120;
+  return 120 - a;
 }
 
-/* Espérance de vie restante à l'âge a (intégration de la survie, pas de pas 1/12 d'année). */
-function lifeExpectancy(table, a) {
-  const p0 = survivalTo(table, a);
+/* Espérance de vie restante à l'âge a (intégration de la survie, pas de 1/12 d'année). */
+function lifeExpectancyRemaining(eff, a) {
   let sum = 0;
   const step = 1 / 12;
-  for (let t = step; a + t < 120; t += step) {
-    sum += survivalTo(table, a + t) / p0 * step;
-  }
+  for (let t = step; a + t < 120; t += step) sum += survFrom(eff, a, t) * step;
   return sum;
 }
 
 /* Formate une durée en jours de façon lisible : ans / mois / jours. */
 function formatGain(days) {
-  const y = Math.floor(days / 365.2425);
-  const rest = days - y * 365.2425;
+  if (days === 0) return "± 0 j";
+  const sign = days > 0 ? "+" : "-";
+  const d = Math.abs(days);
+  const y = Math.floor(d / 365.2425);
+  const rest = d - y * 365.2425;
   const m = Math.floor(rest / 30.44);
-  const d = Math.round(rest - m * 30.44);
+  const dd = Math.round(rest - m * 30.44);
   const parts = [];
   if (y > 0) parts.push(y + (y > 1 ? " ans" : " an"));
   if (m > 0) parts.push(m + " mois");
-  if (d > 0 || parts.length === 0) parts.push(d + " j");
-  return "+" + parts.join(" ");
+  if (dd > 0 || parts.length === 0) parts.push(dd + " j");
+  return sign + parts.join(" ");
 }
 
 document.getElementById("btn").addEventListener("click", () => {
@@ -283,33 +395,43 @@ document.getElementById("btn").addEventListener("click", () => {
   const age = ageDays / 365.2425;
   if (age >= 120) { errorEl.textContent = "Plus de 120 ans ? La table de mortalité se rend, vous avez gagné."; return; }
 
-  const table = TABLES[sex];
-  const medAge = medianAge(table, age);
-  const remainYears = Math.max(0, medAge - age);
+  const eff = effectiveTable(sex, age, hazardMultipliers(age));
+  const effNeutral = effectiveTable(sex, age, () => 1.0);
+
+  const remainYears = medianRemaining(eff, age);
   const remainDays = Math.round(remainYears * 365.2425);
+  const remainNeutralDays = Math.round(medianRemaining(effNeutral, age) * 365.2425);
+  const habitDelta = remainDays - remainNeutralDays;
 
   const deathDate = new Date(now.getTime() + remainDays * 86400000);
-  const expectancy = lifeExpectancy(table, age);
-  const livedFrac = age / medAge * 100;
+  const expectancy = lifeExpectancyRemaining(eff, age);
+  const medAgeAbsolute = age + remainYears;
+  const livedFrac = age / medAgeAbsolute * 100;
 
   document.getElementById("days").textContent = remainDays.toLocaleString("fr-FR");
   document.getElementById("stat-date").textContent = deathDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
   document.getElementById("stat-life").textContent = expectancy.toFixed(1).replace(".", ",") + " ans";
+  const habitsEl = document.getElementById("stat-habits");
+  habitsEl.textContent = formatGain(habitDelta);
+  habitsEl.className = "v " + (habitDelta >= 0 ? "bonus" : "malus");
   document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
   document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
 
   /* ---- Simulation : si je survis encore 1 à 10 ans ----
-     On recalcule l'âge médian de décès à partir de l'âge futur (âge + t).
-     La date de départ devient : aujourd'hui + (médiane_future - âge_actuel).
-     Le gain vs aujourd'hui : combien cette date recule par rapport à l'estimation initiale. */
+     On décale l'âge et on recalcule avec les mêmes comportements.
+     Pour « j'arrête aujourd'hui », les années survécues font aussi décroître
+     le surplus de risque tabagique : tenir bon rapporte deux fois. */
   const simBody = document.getElementById("sim-body");
   simBody.textContent = "";
   for (let t = 1; t <= 10; t++) {
     const futureAge = age + t;
     if (futureAge >= 120) break;
-    const medFuture = medianAge(table, futureAge);
-    const depDate = new Date(now.getTime() + (medFuture - age) * 365.2425 * 86400000);
-    const gainDays = Math.round((medFuture - medAge) * 365.2425);
+    // refreeze : à la date future, on recalcule la table avec m(k) repartant de 0,
+    // mais le temps survécu compte dans la décroissance tabac via l'âge décalé.
+    const effT = effectiveTable(sex, futureAge, hazardMultipliers(futureAge));
+    const medT = medianRemaining(effT, futureAge);
+    const depDate = new Date(now.getTime() + (t + medT) * 365.2425 * 86400000);
+    const gainDays = Math.round(((t + medT) - remainYears) * 365.2425);
     const tr = document.createElement("tr");
     const td1 = document.createElement("td");
     td1.className = "num";
