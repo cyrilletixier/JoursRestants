@@ -14,7 +14,7 @@ Un panneau latéral recalcule la date du grand départ si vous survivez encore d
 
 ## Comportements
 
-Le panneau de gauche ajuste le calcul selon les trois comportements les plus déterminants pour la durée de vie : tabac, alcool, activité physique. Les multiplicateurs de risque sont calibrés sur Doll et al. (BMJ 2004), Wood et al. (The Lancet 2018) et Moore et al. (PLoS Medicine 2012). Le paquet « fumeur + alcool au-delà du modéré + sédentaire » coûte environ 17 ans statistiques : le seul abonnement dont l'annulation rapporte.
+Le panneau de gauche ajuste le décompte selon les trois comportements les plus déterminants pour la durée de vie : tabac (Doll et al., BMJ 2004), alcool (Wood et al., The Lancet 2018) et activité physique (Moore et al., PLoS Medicine 2012). Chaque réponse agit comme un multiplicateur de risque sur les quotients INSEE ; arrêter de fumer aujourd'hui modélise même la décroissance du risque année après année.
 
 ## Utilisation
 
