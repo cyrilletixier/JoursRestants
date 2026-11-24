@@ -155,6 +155,29 @@
   .panel td.num { color: var(--muted); }
   .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
 
+  /* ---- Panneau hypothèses médicales IA ---- */
+  .hypo {
+    order: 4;
+    flex: 0 1 340px;
+    min-width: 280px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  .hypo h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
+  .hypo .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
+  .hypo .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
+  .check-row { display: block; position: relative; margin-bottom: .45rem; }
+  .check-row input { position: absolute; opacity: 0; }
+  .check-row span {
+    display: block; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; font-size: .82rem; background: var(--bg); transition: border-color .15s ease;
+  }
+  .check-row span:hover { border-color: var(--accent); }
+  .check-row input:checked + span { border-color: var(--accent); background: rgba(126,200,169,.12); }
+
   @media (max-width: 1100px) {
     .habits { order: 1; }
     .container { order: 2; }
@@ -218,6 +241,7 @@
           <div class="stat"><div class="v" id="stat-date"></div><div class="k">date du grand départ (à 50&nbsp;%)</div></div>
           <div class="stat"><div class="v" id="stat-life"></div><div class="k">espérance de vie restante</div></div>
           <div class="stat"><div class="v" id="stat-habits"></div><div class="k">bonus / malus comportements vs Français moyen</div></div>
+          <div class="stat"><div class="v" id="stat-ia"></div><div class="k">bonus hypothèses médicales (IA)</div></div>
           <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
           <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
         </div>
@@ -238,6 +262,15 @@
       <tbody id="sim-body"></tbody>
     </table>
     <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
+  </aside>
+
+  <aside class="hypo">
+    <h2>Futurologie assistée par IA</h2>
+    <p class="sub">Et si l'IA guérissait les trois premières causes de décès en France ? Cochez, recalculz, rêvez un peu. Toutes choses égales par ailleurs, béton armé inclus.</p>
+    <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
+    <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
+    <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
+    <p class="note">Part du risque de décès éliminée par cause et par âge, en ordre de grandeur Inserm CépiDc (cancers ~26&nbsp;/&nbsp;15&nbsp;%, cardio ~20&nbsp;/&nbsp;28&nbsp;%, neuro ~8&nbsp;/&nbsp;18&nbsp;%, avant/après 75 ans). Même entièrement guéri, la sénescence et le reste du catalogue continuent leur travail&nbsp;: l'immortalité est repoussée, pas annulée.</p>
   </aside>
 </div>
 
@@ -305,7 +338,7 @@ const ALCOOL_CALAGE = { H: 1.067, F: 1.033 };
    F : 0,25x0,85 + 0,50x1 + 0,25x1,3 = 1,0375 */
 const SPORT_CALAGE = { H: 1.03, F: 1.0375 };
 
-function hazardMultipliers(ageNow, sex) {
+function behaviorMultipliers(ageNow, sex) {
   const tabac = document.querySelector('input[name="tabac"]:checked').value;
   const alcool = document.querySelector('input[name="alcool"]:checked').value;
   const sport = document.querySelector('input[name="sport"]:checked').value;
@@ -325,6 +358,41 @@ function hazardMultipliers(ageNow, sex) {
   // m(k) : hazard ratio k années après aujourd'hui, chaque comportement
   // étant rapporté au mix de la population française du même sexe.
   return (k) => mTabac(k) * mAlcool(k) * mSport(k);
+}
+
+/* ============================================================
+   Hypothèses médicales : « l'IA guérit X ».
+   Les trois premières causes de décès en France (Inserm CépiDc),
+   avec la part du risque de mortalité qu'elles expliquent, par âge
+   (ordres de grandeur, avant / après 75 ans). Éliminer une cause
+   ne supprime que sa part du hazard : les risques concurrents
+   (sénescence, reste du catalogue) continuent de travailler.
+   ============================================================ */
+
+const CAUSES = {
+  cancer: { avant75: 0.26, apres75: 0.15 },
+  cardio: { avant75: 0.20, apres75: 0.28 },
+  neuro:  { avant75: 0.08, apres75: 0.18 }
+};
+
+/* Facteur de hazard sous hypothèses : (1 - part éliminée), en fonction
+   de l'âge absolu. Retourne m(k) comme les comportements. */
+function hypothesisFactor(ageNow) {
+  const checked = Array.from(document.querySelectorAll('input[name="hypo"]:checked')).map(el => el.value);
+  return (k) => {
+    if (checked.length === 0) return 1;
+    const a = ageNow + k;
+    let f = 0;
+    for (const c of checked) f += a < 75 ? CAUSES[c].avant75 : CAUSES[c].apres75;
+    return 1 - Math.min(f, 0.9); // au moins 10 % du hazard demeure : la biologie reste souveraine
+  };
+}
+
+/* Multiplier global : comportements x hypothèses médicales. */
+function hazardMultipliers(ageNow, sex) {
+  const mBeh = behaviorMultipliers(ageNow, sex);
+  const mHyp = hypothesisFactor(ageNow);
+  return (k) => mBeh(k) * mHyp(k);
 }
 
 /* Table effective : qx ajusté à l'âge absolu i (k = i - âge actuel).
@@ -419,12 +487,15 @@ document.getElementById("btn").addEventListener("click", () => {
   if (age >= 120) { errorEl.textContent = "Plus de 120 ans ? La table de mortalité se rend, vous avez gagné."; return; }
 
   const eff = effectiveTable(sex, age, hazardMultipliers(age, sex));
+  const effBeh = effectiveTable(sex, age, behaviorMultipliers(age, sex));
   const effNeutral = effectiveTable(sex, age, () => 1.0);
 
   const remainYears = medianRemaining(eff, age);
   const remainDays = Math.round(remainYears * 365.2425);
+  const remainBehDays = Math.round(medianRemaining(effBeh, age) * 365.2425);
   const remainNeutralDays = Math.round(medianRemaining(effNeutral, age) * 365.2425);
-  const habitDelta = remainDays - remainNeutralDays;
+  const habitDelta = remainBehDays - remainNeutralDays;
+  const iaDelta = remainDays - remainBehDays;
 
   const deathDate = new Date(now.getTime() + remainDays * 86400000);
   const expectancy = lifeExpectancyRemaining(eff, age);
@@ -437,6 +508,9 @@ document.getElementById("btn").addEventListener("click", () => {
   const habitsEl = document.getElementById("stat-habits");
   habitsEl.textContent = formatGain(habitDelta);
   habitsEl.className = "v " + (habitDelta >= 0 ? "bonus" : "malus");
+  const iaEl = document.getElementById("stat-ia");
+  iaEl.textContent = formatGain(iaDelta);
+  iaEl.className = "v " + (iaDelta >= 0 ? "bonus" : "malus");
   document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
   document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
 
