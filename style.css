@@ -202,8 +202,8 @@
   .duo-head { grid-column: 1 / -1; font-size: .7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); margin-bottom: .1rem; }
   .duo-head:not(:first-child) { margin-top: .8rem; }
 
-/* ---- Page couple : foyer en une ligne, comportements autour des identites ---- */
-  .duo-cards { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+/* ---- Page couple : une carte par personne, identites et habitudes cote a cote ---- */
+  .duo-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
   .person-card, .shared-card {
     background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem;
   }
@@ -211,18 +211,14 @@
     font-size: .7rem; text-transform: uppercase; letter-spacing: 1.5px;
     color: var(--accent); margin-bottom: .8rem;
   }
-  .person-card .habit-group h3 { color: var(--text); text-transform: none; letter-spacing: 0; }
   .shared-card { margin-bottom: 1.2rem; }
   .shared-line { display: flex; gap: 1.2rem; align-items: flex-start; flex-wrap: wrap; }
   .shared-line .field { flex: 1 1 240px; margin-bottom: 0; }
   .shared-card .check-row { display: inline-block; margin: 0 .5rem .45rem 0; }
-  .identity-card .p-head { font-size: .78rem; font-weight: 700; color: var(--text); margin-bottom: .5rem; }
-  .identity-card .p-head .side { color: var(--muted); font-weight: 400; font-size: .7rem; }
-  .identity-card .p-bloc { margin-bottom: 1.2rem; }
-  .identity-card .p-bloc:last-child { margin-bottom: 0; padding-top: 1.2rem; border-top: 1px dashed var(--border); }
-  .identity-card .field { margin-bottom: .8rem; }
-  .identity-card .field:last-child { margin-bottom: 0; }
-  @media (max-width: 900px) {
-    .duo-cards { grid-template-columns: 1fr; }
-    .identity-card { order: -1; }
-  }
+  .p-split { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; align-items: start; }
+  .p-id .field { margin-bottom: .8rem; }
+  .p-id .field:last-child { margin-bottom: 0; }
+  .p-habits .habit-group { margin-bottom: .9rem; }
+  .p-habits .habit-group:last-of-type { margin-bottom: 0; }
+  @media (max-width: 900px) { .duo-cards { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .p-split { grid-template-columns: 1fr; } }

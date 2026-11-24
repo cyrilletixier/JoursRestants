@@ -45,80 +45,81 @@
 
       <div class="duo-cards">
         <div class="person-card">
-          <h3>Personne 1 — les habitudes (à gauche, comme au mariage)</h3>
-          <div class="habit-group">
-            <h3>Cigarettes</h3>
-            <label class="radio-row"><input type="radio" name="tabac1" value="jamais" checked><span>Jamais fumé</span></label>
-            <label class="radio-row"><input type="radio" name="tabac1" value="fume"><span>Je fume</span></label>
-            <label class="radio-row"><input type="radio" name="tabac1" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
-            <label class="radio-row"><input type="radio" name="tabac1" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
-          </div>
-          <div class="habit-group">
-            <h3>Alcool</h3>
-            <label class="radio-row"><input type="radio" name="alcool1" value="occas" checked><span>Jamais ou occasionnellement</span></label>
-            <label class="radio-row"><input type="radio" name="alcool1" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
-            <label class="radio-row"><input type="radio" name="alcool1" value="fort"><span>Nettement plus que modéré</span></label>
-          </div>
-          <div class="habit-group">
-            <h3>Activité physique</h3>
-            <label class="radio-row"><input type="radio" name="sport1" value="regulier"><span>Régulière (le corps dit merci)</span></label>
-            <label class="radio-row"><input type="radio" name="sport1" value="parfois" checked><span>De temps en temps</span></label>
-            <label class="radio-row"><input type="radio" name="sport1" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
-          </div>
-        </div>
-
-        <div class="person-card identity-card">
-          <h3>Les acteurs</h3>
-          <div class="p-bloc">
-            <div class="p-head">Personne 1 <span class="side">(celle de gauche)</span></div>
-            <div class="field">
-              <label for="b1">Date de naissance</label>
-              <input type="date" id="b1" required>
+          <h3>Personne 1 <span style="font-weight:400;">(à gauche, comme au mariage)</span></h3>
+          <div class="p-split">
+            <div class="p-id">
+              <div class="field">
+                <label for="b1">Date de naissance</label>
+                <input type="date" id="b1" required>
+              </div>
+              <div class="field">
+                <label for="s1">Sexe (statistiquement, ça change tout)</label>
+                <select id="s1">
+                  <option value="H">Homme</option>
+                  <option value="F">Femme</option>
+                </select>
+              </div>
             </div>
-            <div class="field">
-              <label for="s1">Sexe (statistiquement, ça change tout)</label>
-              <select id="s1">
-                <option value="H">Homme</option>
-                <option value="F">Femme</option>
-              </select>
-            </div>
-          </div>
-          <div class="p-bloc">
-            <div class="p-head">Personne 2 <span class="side">(celle de droite)</span></div>
-            <div class="field">
-              <label for="b2">Date de naissance</label>
-              <input type="date" id="b2" required>
-            </div>
-            <div class="field">
-              <label for="s2">Sexe</label>
-              <select id="s2">
-                <option value="H">Homme</option>
-                <option value="F">Femme</option>
-              </select>
+            <div class="p-habits">
+              <div class="habit-group">
+                <h3>Cigarettes</h3>
+                <label class="radio-row"><input type="radio" name="tabac1" value="jamais" checked><span>Jamais fumé</span></label>
+                <label class="radio-row"><input type="radio" name="tabac1" value="fume"><span>Je fume</span></label>
+                <label class="radio-row"><input type="radio" name="tabac1" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
+                <label class="radio-row"><input type="radio" name="tabac1" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
+              </div>
+              <div class="habit-group">
+                <h3>Alcool</h3>
+                <label class="radio-row"><input type="radio" name="alcool1" value="occas" checked><span>Jamais ou occasionnellement</span></label>
+                <label class="radio-row"><input type="radio" name="alcool1" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
+                <label class="radio-row"><input type="radio" name="alcool1" value="fort"><span>Nettement plus que modéré</span></label>
+              </div>
+              <div class="habit-group">
+                <h3>Activité physique</h3>
+                <label class="radio-row"><input type="radio" name="sport1" value="regulier"><span>Régulière (le corps dit merci)</span></label>
+                <label class="radio-row"><input type="radio" name="sport1" value="parfois" checked><span>De temps en temps</span></label>
+                <label class="radio-row"><input type="radio" name="sport1" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
+              </div>
             </div>
           </div>
         </div>
-
         <div class="person-card">
-          <h3>Personne 2 — les habitudes (à droite, comme au mariage)</h3>
-          <div class="habit-group">
-            <h3>Cigarettes</h3>
-            <label class="radio-row"><input type="radio" name="tabac2" value="jamais" checked><span>Jamais fumé</span></label>
-            <label class="radio-row"><input type="radio" name="tabac2" value="fume"><span>Je fume</span></label>
-            <label class="radio-row"><input type="radio" name="tabac2" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
-            <label class="radio-row"><input type="radio" name="tabac2" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
-          </div>
-          <div class="habit-group">
-            <h3>Alcool</h3>
-            <label class="radio-row"><input type="radio" name="alcool2" value="occas" checked><span>Jamais ou occasionnellement</span></label>
-            <label class="radio-row"><input type="radio" name="alcool2" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
-            <label class="radio-row"><input type="radio" name="alcool2" value="fort"><span>Nettement plus que modéré</span></label>
-          </div>
-          <div class="habit-group">
-            <h3>Activité physique</h3>
-            <label class="radio-row"><input type="radio" name="sport2" value="regulier"><span>Régulière (le corps dit merci)</span></label>
-            <label class="radio-row"><input type="radio" name="sport2" value="parfois" checked><span>De temps en temps</span></label>
-            <label class="radio-row"><input type="radio" name="sport2" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
+          <h3>Personne 2 <span style="font-weight:400;">(à droite, comme au mariage)</span></h3>
+          <div class="p-split">
+            <div class="p-id">
+              <div class="field">
+                <label for="b2">Date de naissance</label>
+                <input type="date" id="b2" required>
+              </div>
+              <div class="field">
+                <label for="s2">Sexe (statistiquement, ça change tout)</label>
+                <select id="s2">
+                  <option value="H">Homme</option>
+                  <option value="F">Femme</option>
+                </select>
+              </div>
+            </div>
+            <div class="p-habits">
+              <div class="habit-group">
+                <h3>Cigarettes</h3>
+                <label class="radio-row"><input type="radio" name="tabac2" value="jamais" checked><span>Jamais fumé</span></label>
+                <label class="radio-row"><input type="radio" name="tabac2" value="fume"><span>Je fume</span></label>
+                <label class="radio-row"><input type="radio" name="tabac2" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
+                <label class="radio-row"><input type="radio" name="tabac2" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
+              </div>
+              <div class="habit-group">
+                <h3>Alcool</h3>
+                <label class="radio-row"><input type="radio" name="alcool2" value="occas" checked><span>Jamais ou occasionnellement</span></label>
+                <label class="radio-row"><input type="radio" name="alcool2" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
+                <label class="radio-row"><input type="radio" name="alcool2" value="fort"><span>Nettement plus que modéré</span></label>
+              </div>
+              <div class="habit-group">
+                <h3>Activité physique</h3>
+                <label class="radio-row"><input type="radio" name="sport2" value="regulier"><span>Régulière (le corps dit merci)</span></label>
+                <label class="radio-row"><input type="radio" name="sport2" value="parfois" checked><span>De temps en temps</span></label>
+                <label class="radio-row"><input type="radio" name="sport2" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
