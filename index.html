@@ -270,17 +270,19 @@ document.getElementById("btn").addEventListener("click", () => {
   /* ---- Répartition statistique du temps restant ----
      Petite enfance jusqu'à 6 ans (entrée au CP : le premier jour
      où dormir en classe devient une faute disciplinaire), puis
-     scolarité de 6 à 22 ans (fin moyenne des études supérieures),
-     dont ~16 semaines de vacances par an (112 jours calendaires :
-     Toussaint, Noël, hiver, printemps, été — le seul congé que
-     la République vous versera sans cotiser), enfin travail
-     jusqu'à l'âge de retraite choisi (64 ans par défaut,
-     l'âge légal de la réforme 2023), à raison d'environ 228 jours
-     ouvrés par an (5 sem. de congés + jours fériés + RTT).
-     Départ anticipé ou tardif : ça déplace des jours du poste
-     « bosser » vers « glander », ou l'inverse. La retraite, ce 
-     grand transfert de capital glandage. Tout le reste : glandage,
-     au sens le plus large et le plus honorable du terme. */
+     cours de 6 à 22 ans (fin moyenne des études supérieures),
+     hors ~16 semaines de vacances par an (112 jours calendaires :
+     Toussaint, Noël, hiver, printemps, été) qui sont comptées
+     comme de la glandouille junior — la République verse du
+     loisir à fonds perdus tant que vous n'avez rien à lost —,
+     enfin travail jusqu'à l'âge de retraite choisi (64 ans par
+     défaut, l'âge légal de la réforme 2023), à raison d'environ
+     228 jours ouvrés par an (5 sem. de congés + jours fériés +
+     RTT). Départ anticipé ou tardif : ça déplace des jours du
+     poste « bosser » vers « glander », ou l'inverse. La retraite,
+     ce grand transfert de capital glandage. Tout le reste :
+     glandage, au sens le plus large et le plus honorable du
+     terme, vacances scolaires comprises. */
   const ENTREE_CP = 6, FIN_ETUDES = 22, JOURS_OUVRRES_AN = 228, JOURS_VACANCES_AN = 112;
   const RETRAITE = parseInt(document.getElementById("retraite").value, 10) || 64;
   const kidDays = age < ENTREE_CP ? Math.round((ENTREE_CP - age) * 365.2425) : 0;
@@ -288,7 +290,9 @@ document.getElementById("btn").addEventListener("click", () => {
   const vacancesDays = Math.round(schoolYears * JOURS_VACANCES_AN);
   const studyDays = Math.round(schoolYears * 365.2425) - vacancesDays;
   const workDays = age < RETRAITE ? Math.round(Math.max(0, RETRAITE - Math.max(age, FIN_ETUDES)) * JOURS_OUVRRES_AN) : 0;
-  const slackDays = Math.max(0, remainDays - kidDays - vacancesDays - studyDays - workDays);
+  /* Vacances scolaires fusionnées dans la glandouille : la sieste
+     de juillet et la sieste de la vie relèvent du même poste. */
+  const slackDays = Math.max(0, remainDays - kidDays - studyDays - workDays);
 
   /* ---- Camembert 1 : la vie totale, en parts de marché de la Faucheuse ----
      Le disque entier = l'âge médian de décès avec vos réglages.
@@ -314,15 +318,14 @@ document.getElementById("btn").addEventListener("click", () => {
   document.getElementById("pie-life").innerHTML = donutSVG(segsLife, medAgeAbsolute.toFixed(1).replace(".", ",") + " ans", "vie totale médiane");
 
   /* ---- Camembert 2 : les jours restants, ventilés en petite
-     enfance, vacances, cours, travail et glandouille. Le régime
-     équilibré, de la maternelle au cercueil. ---- */
-  const C_KID = "#d98fb5", C_VAC = "#7bc9d6", C_ETUDE = "#e0b458", C_TRAVAIL = "#5b8bd0", C_GLAND = "#7ec8a9";
+     enfance, cours, travail et glandouille, vacances comprises.
+     Le régime équilibré, de la maternelle au cercueil. ---- */
+  const C_KID = "#d98fb5", C_ETUDE = "#e0b458", C_TRAVAIL = "#5b8bd0", C_GLAND = "#7ec8a9";
   const segsDays = [
     { label: "Petite enfance", value: kidDays, color: C_KID, disp: kidDays.toLocaleString("fr-FR") + " j" },
-    { label: "Vacances scolaires", value: vacancesDays, color: C_VAC, disp: vacancesDays.toLocaleString("fr-FR") + " j" },
     { label: "Cours", value: studyDays, color: C_ETUDE, disp: studyDays.toLocaleString("fr-FR") + " j" },
     { label: "Travail", value: workDays, color: C_TRAVAIL, disp: workDays.toLocaleString("fr-FR") + " j" },
-    { label: "Glandouille", value: slackDays, color: C_GLAND, disp: slackDays.toLocaleString("fr-FR") + " j" }
+    { label: "Glandouille (vacances comprises)", value: slackDays, color: C_GLAND, disp: slackDays.toLocaleString("fr-FR") + " j" }
   ];
   document.getElementById("pie-days").innerHTML = donutSVG(segsDays, remainDays.toLocaleString("fr-FR"), "jours restants à 50 %");
 
