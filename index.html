@@ -96,12 +96,12 @@
           <div class="pie-card">
             <h3>Votre vie totale, en parts de camembert</h3>
             <div class="pie-svg" id="pie-life"></div>
-            <div class="hint">Survolez les parts pour lire les explications. Le fromage ne se cache pas, il se détaille.</div>
+            <div class="hint">Les pourcentages s'affichent à côté des parts, le détail au survol. Le fromage ne se cache pas, il se détaille.</div>
           </div>
           <div class="pie-card">
             <h3>Les jours restants, en régime équilibré</h3>
             <div class="pie-svg" id="pie-days"></div>
-            <div class="hint">Survolez les parts pour lire les explications. Régime équilibré garanti, sans modération.</div>
+            <div class="hint">Pourcentages à côté des parts, détail au survol. Régime équilibré garanti, sans modération.</div>
           </div>
         </div>
         <div class="stats">
@@ -163,23 +163,35 @@ function hazardMultipliers(ageNow, sex) {
 }
 
 /* Camembert SVG : segments [{value, color}], textes centraux. */
+/* Camembert SVG : segments [{value, color}], textes centraux.
+   Le pourcentage de chaque part s'affiche à côté de l'arc, dans sa couleur ;
+   les parts trop fines (< 3 %) ne l'affichent pas pour éviter les collisions.
+   Le survol reste volontaire court : libellé · valeur. */
 function donutSVG(segs, centerMain, centerSub) {
   const total = segs.reduce((s, x) => s + x.value, 0);
   if (total <= 0) return "";
-  const C = 2 * Math.PI * 48;
-  let offset = 0, circles = "";
+  const cx = 70, cy = 62, R = 44, SW = 13;
+  const C = 2 * Math.PI * R;
+  let offset = 0, circles = "", pctLabels = "";
   for (const s of segs) {
     if (s.value <= 0) continue;
     const len = (s.value / total) * C;
-    circles += '<circle cx="60" cy="60" r="48" fill="none" stroke="' + s.color +
-      '" stroke-width="15" stroke-dasharray="' + len.toFixed(2) + " " + (C - len).toFixed(2) +
+    circles += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + s.color +
+      '" stroke-width="' + SW + '" stroke-dasharray="' + len.toFixed(2) + " " + (C - len).toFixed(2) +
       '" stroke-dashoffset="' + (-offset).toFixed(2) + '">' +
-      "<title>" + s.label + " : " + s.disp + "</title></circle>";
+      "<title>" + s.label + " \u00b7 " + s.disp + "</title></circle>";
+    const pct = (s.value / total) * 100;
+    if (pct >= 3) {
+      const th = ((offset + len / 2) / C) * 2 * Math.PI - Math.PI / 2;
+      const lx = (cx + 54.5 * Math.cos(th)).toFixed(1);
+      const ly = (cy + 54.5 * Math.sin(th) + 3).toFixed(1);
+      pctLabels += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" fill="' + s.color + '" font-size="8.5" font-weight="700">' + pct.toFixed(0) + " %</text>";
+    }
     offset += len;
   }
-  return '<svg viewBox="0 0 120 120" role="img"><g transform="rotate(-90 60 60)">' + circles + "</g>" +
-    '<text x="60" y="58" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
-    '<text x="60" y="71" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
+  return '<svg viewBox="0 0 140 124" role="img"><g transform="rotate(-90 70 62)">' + circles + "</g>" + pctLabels +
+    '<text x="70" y="60" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
+    '<text x="70" y="73" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
 }
 
 /* Courbe SVG : gain de date de départ selon les années survécues (0 à 30 ans). */
@@ -283,11 +295,11 @@ document.getElementById("btn").addEventListener("click", () => {
   const blueY = remainNeutralY + Math.min(habitY, 0);
   const segsLife = [
     { label: "Déjà dépensée", value: livedY, color: C_VEcu, disp: livedY.toFixed(1).replace(".", ",") + " ans" },
-    { label: "Restant (réf. moyen)", value: blueY, color: C_REST, disp: blueY.toFixed(1).replace(".", ",") + " ans" }
+    { label: "Restant (réf.)", value: blueY, color: C_REST, disp: blueY.toFixed(1).replace(".", ",") + " ans" }
   ];
-  if (habitY < 0) segsLife.push({ label: "Perte comportements et niveau de vie", value: -habitY, color: C_HAB_NEG, disp: yearsFmt(habitY) });
-  if (habitY > 0) segsLife.push({ label: "Bonus comportements et niveau de vie", value: habitY, color: C_HAB_POS, disp: yearsFmt(habitY) });
-  if (iaY > 0) segsLife.push({ label: "Bonus guérisons IA", value: iaY, color: C_IA, disp: yearsFmt(iaY) });
+  if (habitY < 0) segsLife.push({ label: "Perte comportements", value: -habitY, color: C_HAB_NEG, disp: yearsFmt(habitY) });
+  if (habitY > 0) segsLife.push({ label: "Bonus comportements", value: habitY, color: C_HAB_POS, disp: yearsFmt(habitY) });
+  if (iaY > 0) segsLife.push({ label: "Bonus IA", value: iaY, color: C_IA, disp: yearsFmt(iaY) });
   document.getElementById("pie-life").innerHTML = donutSVG(segsLife, medAgeAbsolute.toFixed(1).replace(".", ",") + " ans", "vie totale médiane");
 
   /* ---- Camembert 2 : les jours restants, ventilés en études,
