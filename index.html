@@ -129,11 +129,18 @@
   .radio-row .impact.bad { color: var(--danger); }
   .radio-row .impact.good { color: var(--accent); }
 
+  /* ---- Colonne droite : futurologie puis simulation, empilées ---- */
+  .right-col {
+    order: 3;
+    flex: 0 1 360px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
   /* ---- Panneau latéral droite : simulation de survie ---- */
   .panel {
-    order: 4;
-    flex: 0 1 340px;
-    min-width: 280px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -149,9 +156,6 @@
 
   /* ---- Panneau hypothèses médicales IA ---- */
   .hypo {
-    order: 3;
-    flex: 0 1 340px;
-    min-width: 280px;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -173,8 +177,7 @@
   @media (max-width: 1100px) {
     .habits { order: 1; }
     .container { order: 2; }
-    .hypo { order: 3; }
-    .panel { order: 4; }
+    .right-col { order: 3; }
   }
 
   /* ---- Camemberts ---- */
@@ -189,9 +192,7 @@
   }
   .pie-card h3 { font-size: .78rem; color: var(--muted); font-weight: 600; margin-bottom: .5rem; }
   .pie-svg svg { width: 100%; max-width: 230px; height: auto; }
-  .legend { display: flex; flex-wrap: wrap; gap: .3rem .8rem; justify-content: center; font-size: .72rem; color: var(--muted); margin-top: .6rem; }
-  .legend .dot { display: inline-block; width: .65em; height: .65em; border-radius: 50%; margin-right: .3em; vertical-align: middle; }
-  .legend b { color: var(--text); }
+  .hint { text-align: center; color: var(--muted); font-size: .7rem; font-style: italic; margin-top: .5rem; }
 </style>
 </head>
 <body>
@@ -264,12 +265,12 @@
           <div class="pie-card">
             <h3>Votre vie totale, en parts de camembert</h3>
             <div class="pie-svg" id="pie-life"></div>
-            <div class="legend" id="legend-life"></div>
+            <div class="hint">Survolez les parts pour lire les explications. Le fromage ne se cache pas, il se détaille.</div>
           </div>
           <div class="pie-card">
             <h3>Les jours restants, en régime équilibré</h3>
             <div class="pie-svg" id="pie-days"></div>
-            <div class="legend" id="legend-days"></div>
+            <div class="hint">Survolez les parts pour lire les explications. Régime équilibré garanti, sans modération.</div>
           </div>
         </div>
         <div class="stats">
@@ -284,21 +285,22 @@
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
   </div>
 
-  <aside class="hypo">
-    <h2>Futurologie assistée par IA</h2>
-    <p class="sub">Et si l'IA guérissait les trois premières causes de décès en France ? Cochez, recalculez, rêvez un peu. Toutes choses égales par ailleurs, béton armé inclus.</p>
-    <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
-    <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
-    <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
-    <p class="note">Part du risque de décès éliminée par cause et par âge, en ordre de grandeur Inserm CépiDc (cancers ~26&nbsp;/&nbsp;15&nbsp;%, cardio ~20&nbsp;/&nbsp;28&nbsp;%, neuro ~8&nbsp;/&nbsp;18&nbsp;%, avant/après 75 ans). Même entièrement guéri, la sénescence et le reste du catalogue continuent leur travail&nbsp;: l'immortalité est repoussée, pas annulée.</p>
-  </aside>
-  <aside class="panel" id="panel">
-    <h2>Si vous survivez encore…</h2>
-    <p class="sub">De 0 à 30 ans survécus : de combien la date du grand départ recule-t-elle ? Comportements et hypothèses IA inclus. La pente, c'est de la vie vendue au prix fort.</p>
-    <div id="sim-chart"></div>
-    <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
-  </aside>
-
+  <div class="right-col">
+    <aside class="hypo">
+      <h2>Futurologie assistée par IA</h2>
+      <p class="sub">Et si l'IA guérissait les trois premières causes de décès en France ? Cochez, recalculez, rêvez un peu. Toutes choses égales par ailleurs, béton armé inclus.</p>
+      <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
+      <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
+      <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
+      <p class="note">Part du risque de décès éliminée par cause et par âge, en ordre de grandeur Inserm CépiDc (cancers ~26&nbsp;/&nbsp;15&nbsp;%, cardio ~20&nbsp;/&nbsp;28&nbsp;%, neuro ~8&nbsp;/&nbsp;18&nbsp;%, avant/après 75 ans). Même entièrement guéri, la sénescence et le reste du catalogue continuent leur travail&nbsp;: l'immortalité est repoussée, pas annulée.</p>
+    </aside>
+    <aside class="panel" id="panel">
+      <h2>Si vous survivez encore…</h2>
+      <p class="sub">De 0 à 30 ans survécus : de combien la date du grand départ recule-t-elle ? Comportements et hypothèses IA inclus. La pente, c'est de la vie vendue au prix fort.</p>
+      <div id="sim-chart"></div>
+      <p class="note">Comportements supposés constants sur la période. Si vous arrêtez de fumer aujourd'hui et tenez dix ans, le gain affiché ici est volontairement pessimiste&nbsp;: votre faucheur déteste les calculs trop optimistes.</p>
+    </aside>
+  </div>
 </div>
 
 <script>
@@ -495,20 +497,13 @@ function donutSVG(segs, centerMain, centerSub) {
     const len = (s.value / total) * C;
     circles += '<circle cx="60" cy="60" r="48" fill="none" stroke="' + s.color +
       '" stroke-width="15" stroke-dasharray="' + len.toFixed(2) + " " + (C - len).toFixed(2) +
-      '" stroke-dashoffset="' + (-offset).toFixed(2) + '"/>';
+      '" stroke-dashoffset="' + (-offset).toFixed(2) + '">' +
+      "<title>" + s.label + " : " + s.disp + "</title></circle>";
     offset += len;
   }
   return '<svg viewBox="0 0 120 120" role="img"><g transform="rotate(-90 60 60)">' + circles + "</g>" +
     '<text x="60" y="58" text-anchor="middle" fill="#e8e6e1" font-size="13" font-weight="700">' + centerMain + "</text>" +
     '<text x="60" y="71" text-anchor="middle" fill="#8b929c" font-size="7.5">' + centerSub + "</text></svg>";
-}
-
-/* Légende : lignes [{label, disp, color}]. */
-function legendHTML(rows) {
-  return rows.map(r =>
-    '<span><i class="dot" style="background:' + r.color + '"></i>' + r.label +
-    '&nbsp;<b>' + r.disp + "</b></span>"
-  ).join("");
 }
 
 /* Courbe SVG : gain de date de départ selon les années survécues (0 à 30 ans). */
@@ -618,7 +613,6 @@ document.getElementById("btn").addEventListener("click", () => {
   if (habitY > 0) segsLife.push({ label: "Bonus comportements", value: habitY, color: C_HAB_POS, disp: yearsFmt(habitY) });
   if (iaY > 0) segsLife.push({ label: "Bonus guérisons IA", value: iaY, color: C_IA, disp: yearsFmt(iaY) });
   document.getElementById("pie-life").innerHTML = donutSVG(segsLife, medAgeAbsolute.toFixed(1).replace(".", ",") + " ans", "vie totale médiane");
-  document.getElementById("legend-life").innerHTML = legendHTML(segsLife);
 
   /* ---- Camembert 2 : les jours restants, ventilés en études,
      travail et glandouille. Le régime équilibré de la décence. ---- */
@@ -630,10 +624,6 @@ document.getElementById("btn").addEventListener("click", () => {
   ];
   document.getElementById("pie-days").innerHTML = donutSVG(segsDays, remainDays.toLocaleString("fr-FR"), "jours restants à 50 %");
 
-  /* ---- Simulation : si je survis encore 1 à 10 ans ----
-     On décale l'âge et on recalcule avec les mêmes comportements.
-     Pour « j'arrête aujourd'hui », les années survécues font aussi décroître
-     le surplus de risque tabagique : tenir bon rapporte deux fois. */
   /* ---- Courbe : si je survis de 0 à 30 ans ----
      On décale l'âge et on recalcule la médiane à chaque échelon,
      comportements et hypothèses IA inclus. Pour « j'arrête
