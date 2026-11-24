@@ -231,6 +231,20 @@
           <option value="F">Femme</option>
         </select>
       </div>
+      <div class="field">
+        <label for="retraite">Âge de départ à la retraite envisagé</label>
+        <select id="retraite">
+          <option value="62">62 ans (carrière longue, les autres, rêvez)</option>
+          <option value="63">63 ans</option>
+          <option value="64" selected>64 ans (l'âge légal, en théorie)</option>
+          <option value="65">65 ans</option>
+          <option value="66">66 ans</option>
+          <option value="67">67 ans</option>
+          <option value="68">68 ans</option>
+          <option value="69">69 ans</option>
+          <option value="70">70 ans (workaholic ou problème d'addiction au badge)</option>
+        </select>
+      </div>
       <button id="btn">Découvrir mon décompte</button>
       <div class="error" id="error"></div>
 
@@ -519,13 +533,15 @@ document.getElementById("btn").addEventListener("click", () => {
 
   /* ---- Répartition statistique du temps restant ----
      Études jusqu'à 22 ans (fin moyenne des études supérieures),
-     travail jusqu'à 64 ans (âge légal de départ, réforme 2023),
-     à raison d'environ 228 jours ouvrés par an (5 sem. de congés +
-     jours fériés + RTT). Tout le reste : glandage, au sens le plus large
-     et le plus honorable du terme (week-ends, congés, retraite, sieste,
-     contemplation du plafond). Remarque : la somme tombe juste,
-     la-compte-à-rebours-vous-savez-le-reste. */
-  const FIN_ETUDES = 22, RETRAITE = 64, JOURS_OUVRRES_AN = 228;
+     travail jusqu'à l'âge de retraite choisi (64 ans par défaut,
+     l'âge légal de la réforme 2023), à raison d'environ 228 jours
+     ouvrés par an (5 sem. de congés + jours fériés + RTT).
+     Départ anticipé ou tardif : ça déplace des jours du poste
+     « bosser » vers « glander », ou l'inverse. La retraite, ce 
+     grand transfert de capital glandage. Tout le reste : glandage,
+     au sens le plus large et le plus honorable du terme. */
+  const FIN_ETUDES = 22, JOURS_OUVRRES_AN = 228;
+  const RETRAITE = parseInt(document.getElementById("retraite").value, 10) || 64;
   const studyDays = age < FIN_ETUDES ? Math.round((FIN_ETUDES - age) * 365.2425) : 0;
   const workDays = age < RETRAITE ? Math.round(Math.max(0, RETRAITE - Math.max(age, FIN_ETUDES)) * JOURS_OUVRRES_AN) : 0;
   const slackDays = Math.max(0, remainDays - studyDays - workDays);
