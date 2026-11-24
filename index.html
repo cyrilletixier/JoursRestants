@@ -5,203 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jours Restants — Combien de jours vous reste-t-il ?</title>
 <meta name="description" content="Entrez votre date de naissance et découvrez combien de jours il vous reste à vivre avec 50 % de chance, d'après les tables de mortalité de l'INSEE et vos comportements.">
-<style>
-  :root {
-    --bg: #0d0f12;
-    --card: #161a20;
-    --text: #e8e6e1;
-    --muted: #8b929c;
-    --accent: #7ec8a9;
-    --danger: #e06c5f;
-    --border: #262c35;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-  .layout { width: 100%; max-width: 1400px; display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
-  .container { flex: 1 1 480px; min-width: 320px; order: 2; }
-  h1 {
-    font-size: clamp(1.8rem, 5vw, 2.6rem);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-align: center;
-    margin-bottom: .5rem;
-  }
-  h1 span { color: var(--accent); }
-  .tagline {
-    text-align: center;
-    color: var(--muted);
-    margin-bottom: 2.5rem;
-    font-style: italic;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 2rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,.4);
-  }
-  label { display: block; margin-bottom: .4rem; color: var(--muted); font-size: .9rem; }
-  .field { margin-bottom: 1.2rem; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
-  .form-grid .field { margin-bottom: 1.2rem; }
-  input[type="date"], select {
-    width: 100%;
-    padding: .8rem 1rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 1rem;
-  }
-  input[type="date"]:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
-  button {
-    width: 100%;
-    padding: 1rem;
-    background: var(--accent);
-    color: #0d0f12;
-    font-weight: 700;
-    font-size: 1.05rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: .5rem;
-    transition: transform .1s ease, filter .1s ease;
-  }
-  button:hover { filter: brightness(1.1); }
-  button:active { transform: scale(.99); }
-  #result { display: none; margin-top: 1.5rem; text-align: center; }
-  #result.visible { display: block; animation: fadein .6s ease; }
-  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
-  .big-number {
-    font-size: clamp(3rem, 10vw, 5.5rem);
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1.1;
-  }
-  .big-label { color: var(--muted); margin-bottom: 1.2rem; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
-  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
-  .stat .v { font-size: 1.3rem; font-weight: 700; }
-  .stat .v.bonus { color: var(--accent); }
-  .stat .v.malus { color: var(--danger); }
-  .stat .k { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
-  .disclaimer { text-align: center; color: var(--muted); font-size: .78rem; margin-top: 1.5rem; }
-  .error { color: var(--danger); text-align: center; margin-top: 1rem; font-size: .9rem; }
-  footer { text-align: center; margin-top: 2rem; color: var(--muted); font-size: .8rem; }
-  footer a { color: var(--accent); text-decoration: none; }
-
-  /* ---- Panneau comportements (gauche) ---- */
-  .habits {
-    order: 1;
-    flex: 0 1 300px;
-    min-width: 270px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.4rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,.4);
-    align-self: flex-start;
-  }
-  .habits h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
-  .habits .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
-  .habit-group { margin-bottom: 1.3rem; }
-  .habit-group:last-of-type { margin-bottom: 0; }
-  .habit-group h3 { font-size: .85rem; margin-bottom: .5rem; color: var(--text); }
-  .habit-group .src { color: var(--muted); font-size: .7rem; font-weight: 400; }
-  .radio-row { display: block; position: relative; margin-bottom: .35rem; }
-  .radio-row input { position: absolute; opacity: 0; }
-  .radio-row span {
-    display: flex; justify-content: space-between; align-items: center; gap: .5rem;
-    padding: .5rem .7rem; border: 1px solid var(--border); border-radius: 8px;
-    cursor: pointer; font-size: .82rem; background: var(--bg);
-    transition: border-color .15s ease;
-  }
-  .radio-row span:hover { border-color: var(--accent); }
-  .radio-row input:checked + span { border-color: var(--accent); background: rgba(126,200,169,.12); }
-  .radio-row .impact { color: var(--muted); font-size: .72rem; white-space: nowrap; }
-  .radio-row .impact.bad { color: var(--danger); }
-  .radio-row .impact.good { color: var(--accent); }
-
-  /* ---- Colonne droite : futurologie puis simulation, empilées ---- */
-  .right-col {
-    order: 3;
-    flex: 0 1 360px;
-    min-width: 300px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* ---- Panneau latéral droite : simulation de survie ---- */
-  .panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.4rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,.4);
-    display: none;
-  }
-  .panel.visible { display: block; animation: fadein .6s ease; }
-  .panel h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
-  .panel .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
-  .panel .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
-  #sim-chart svg { width: 100%; height: auto; display: block; }
-
-  /* ---- Panneau hypothèses médicales IA ---- */
-  .hypo {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.4rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,.4);
-  }
-  .hypo h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; color: var(--accent); }
-  .hypo .sub { color: var(--muted); font-size: .78rem; font-style: italic; margin-bottom: 1rem; }
-  .hypo .note { color: var(--muted); font-size: .7rem; margin-top: .8rem; line-height: 1.4; }
-  .check-row { display: block; position: relative; margin-bottom: .45rem; }
-  .check-row input { position: absolute; opacity: 0; }
-  .check-row span {
-    display: block; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: 8px;
-    cursor: pointer; font-size: .82rem; background: var(--bg); transition: border-color .15s ease;
-  }
-  .check-row span:hover { border-color: var(--accent); }
-  .check-row input:checked + span { border-color: var(--accent); background: rgba(126,200,169,.12); }
-
-  @media (max-width: 1100px) {
-    .habits { order: 1; }
-    .container { order: 2; }
-    .right-col { order: 3; }
-  }
-  @media (max-width: 640px) {
-    .form-grid { grid-template-columns: 1fr; }
-  }
-
-  /* ---- Camemberts ---- */
-  .pies { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
-  .pie-card {
-    flex: 1 1 240px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
-    text-align: center;
-  }
-  .pie-card h3 { font-size: .78rem; color: var(--muted); font-weight: 600; margin-bottom: .5rem; }
-  .pie-svg svg { width: 100%; max-width: 230px; height: auto; }
-  .hint { text-align: center; color: var(--muted); font-size: .7rem; font-style: italic; margin-top: .5rem; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="layout">
+<nav class="topnav">
+    <a class="active" href="index.html">Jours Restants</a>
+    <a href="couple.html">Vivrons-nous ensemble ?</a>
+    <a href="heritage.html">Quand vais-je hériter ?</a>
+  </nav>
+  <div class="layout">
 
   <aside class="habits">
     <h2>Vos petites habitudes</h2>
@@ -320,39 +132,9 @@
   </div>
 </div>
 
+<script src="life.js"></script>
 <script>
 "use strict";
-
-/* ============================================================
-   Tables de mortalité INSEE 2025 (données provisoires), France.
-   DEC3 — Quotients de mortalité pour 100 000 survivants à l'âge x,
-   par âge atteint dans l'année. Indices : 0 = q(x=0), ..., 100 = q(x=100).
-   https://www.insee.fr/fr/statistiques/8999019
-   ============================================================ */
-const QX = {
-  F: [320,61,19,10,7,9,6,9,9,5,8,5,6,7,11,13,14,15,15,17,21,21,23,20,24,25,26,22,26,24,24,35,34,38,33,46,48,51,47,60,59,72,83,79,94,94,114,114,128,143,168,179,200,211,225,244,281,301,331,360,394,425,460,514,569,619,680,714,751,821,895,975,1060,1152,1245,1333,1467,1654,1813,2125,2322,2687,3074,3481,4027,4749,5379,6150,7126,8044,9278,10717,12283,13915,15783,18327,20490,22380,25592,27448,30036],
-  H: [405,60,23,19,19,12,13,8,9,7,7,8,8,12,13,21,24,30,38,50,61,58,54,63,61,59,68,62,75,74,74,87,71,89,95,101,100,121,117,131,137,155,168,174,189,216,235,229,240,286,329,339,376,420,473,500,526,595,648,715,748,817,897,973,1078,1160,1294,1365,1486,1602,1721,1884,2067,2185,2342,2586,2755,2964,3270,3587,3978,4512,4875,5460,6216,6863,7966,9125,9999,11193,12907,14492,16533,18232,19527,22358,25041,27511,30353,31253,36685]
-};
-
-/* Prolongement au-delà de 100 ans : on extrapole le quotient en
-   multipliant par ~1,09 par an jusqu'à atteindre 1 (table fermée à 120). */
-function buildFullTable(sex) {
-  const t = QX[sex].map(v => v / 100000);
-  const n = 10;
-  let g = 1;
-  for (let i = t.length - n; i < t.length; i++) g *= t[i] / t[i - 1];
-  g = Math.pow(g, 1 / n);
-  let q = t[t.length - 1] * g;
-  while (t.length < 121) {
-    t.push(Math.min(q, 1));
-    q *= g;
-    if (q >= 1) q = 1;
-  }
-  return t;
-}
-
-const TABLES = { F: buildFullTable("F"), H: buildFullTable("H") };
-
 /* ============================================================
    Comportements : multiplicateurs de risque (hazard ratios) appliqués
    au hazard de mortalité INSEE, en référence au Français moyen.
@@ -455,68 +237,6 @@ function hazardMultipliers(ageNow, sex) {
   const mBeh = behaviorMultipliers(ageNow, sex);
   const mHyp = hypothesisFactor(ageNow);
   return (k) => mBeh(k) * mHyp(k);
-}
-
-/* Table effective : qx ajusté à l'âge absolu i (k = i - âge actuel).
-   Les comportements ne modulent que les années à venir ; le passé est acquis. */
-function effectiveTable(sex, ageNow, mfun) {
-  const base = TABLES[sex];
-  return base.map((q, i) => {
-    if (i < ageNow || i < 18) return q;
-    const m = mfun(i - ageNow);
-    return 1 - Math.pow(1 - q, m);
-  });
-}
-
-/* Survie de l'âge a à l'âge a+t, sous la table effective (interpolation géométrique intra-annuelle). */
-function survFrom(eff, a, t) {
-  if (t <= 0) return 1;
-  let p = 1;
-  let idx = Math.floor(a);
-  const frac = a - idx; // partie déjà vécue de l'année idx
-  if (t <= 1 - frac) return Math.pow(1 - eff[Math.min(idx, eff.length - 1)], t);
-  if (frac > 0) {
-    p *= Math.pow(1 - eff[idx], 1 - frac);
-    t -= (1 - frac);
-    idx++;
-  }
-  while (t >= 1 && idx < eff.length) {
-    p *= (1 - eff[idx]);
-    idx++;
-    t -= 1;
-  }
-  if (t > 0 && idx < eff.length) p *= Math.pow(1 - eff[idx], t);
-  return p;
-}
-
-/* Temps médian restant : plus petit t tel que survie(a -> a+t) <= 0,5. */
-function medianRemaining(eff, a) {
-  let t = 0;
-  while (t < 120 - a) {
-    if (survFrom(eff, a, t + 1) <= 0.5) {
-      const pBefore = survFrom(eff, a, t);
-      const pAfter = survFrom(eff, a, t + 1);
-      if (pAfter >= pBefore) return t + 0.5;
-      return t + (pBefore - 0.5) / (pBefore - pAfter);
-    }
-    t++;
-  }
-  return 120 - a;
-}
-
-/* Espérance de vie restante à l'âge a (intégration de la survie, pas de 1/12 d'année). */
-function lifeExpectancyRemaining(eff, a) {
-  let sum = 0;
-  const step = 1 / 12;
-  for (let t = step; a + t < 120; t += step) sum += survFrom(eff, a, t) * step;
-  return sum;
-}
-
-/* Formate un gain (ou une perte) en années : « +2,3 ans » / « -1,2 an ». */
-function yearsFmt(y) {
-  const sign = y >= 0 ? "+" : "-";
-  const a = Math.abs(y);
-  return sign + a.toFixed(1).replace(".", ",") + (a >= 2 ? " ans" : " an");
 }
 
 /* Camembert SVG : segments [{value, color}], textes centraux. */

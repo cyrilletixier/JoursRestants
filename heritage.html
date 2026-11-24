@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quand vais-je hériter ? — Jours Restants</title>
+<meta name="description" content="Date probable de votre héritage et probabilité de décéder avant ses parents, d'après les tables de mortalité INSEE. L'ordre des départs décide de tout.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <div class="container">
+    <nav class="topnav">
+      <a href="index.html">Jours Restants</a>
+      <a href="couple.html">Vivrons-nous ensemble ?</a>
+      <a class="active" href="heritage.html">Quand vais-je hériter ?</a>
+    </nav>
+
+    <h1>Quand vais-je <span>hériter ?</span></h1>
+    <p class="tagline">L'argent ne console pas, mais seul l'ordre des départs décide de qui encaisse.</p>
+
+    <div class="card">
+      <div class="form-grid">
+        <div class="duo-head">Vous</div>
+        <div class="field">
+          <label for="b0">Votre date de naissance</label>
+          <input type="date" id="b0" required>
+        </div>
+        <div class="field">
+          <label for="s0">Votre sexe</label>
+          <select id="s0">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div class="duo-head">Parent 1</div>
+        <div class="field">
+          <label for="b1">Date de naissance</label>
+          <input type="date" id="b1" required>
+        </div>
+        <div class="field">
+          <label for="s1">Sexe</label>
+          <select id="s1">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div class="duo-head">Parent 2 (facultatif, la généalogie s'arrête où vous voulez)</div>
+        <div class="field">
+          <label for="b2">Date de naissance (laisser vide pour ignorer)</label>
+          <input type="date" id="b2">
+        </div>
+        <div class="field">
+          <label for="s2">Sexe</label>
+          <select id="s2">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+      </div>
+      <button id="btn">Découvrir la date du virement posthume</button>
+      <div class="error" id="error"></div>
+
+      <div id="result">
+        <div class="big-number" id="days"></div>
+        <div class="big-label">jours avant le premier héritage probable (à 50&nbsp;%)</div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="stat-date"></div><div class="k">date probable du premier héritage</div></div>
+          <div class="stat"><div class="v" id="stat-age"></div><div class="k">votre âge à ce moment-là (à 50&nbsp;%)</div></div>
+          <div class="stat"><div class="v" id="stat-never"></div><div class="k">chances de décéder avant vos parents, donc de ne jamais rien toucher (l'héritage qui vous esquive)</div></div>
+          <div class="stat" id="row-p1"><div class="v" id="stat-date1"></div><div class="k">héritage du parent 1, date probable · <span id="stat-p1"></span></div></div>
+          <div class="stat" id="row-p2"><div class="v" id="stat-date2"></div><div class="k">héritage du parent 2, date probable · <span id="stat-p2"></span></div></div>
+          <div class="stat" id="row-gap"><div class="v" id="stat-gap"></div><div class="k">écart probable entre les deux héritages (le second chèque, deux fois les condoléances)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">Calcul sur les tables de mortalité 2025 (provisoires) de l'INSEE, destins supposés indépendants et parents supposés vivants aujourd'hui : si l'un est déjà parti, considérez que ce chèque est tombé et que ce calcul vaut pour le suivant. Vous et vos parents y êtes traités à la mortalité moyenne de votre sexe ; les comportements (tabac, alcool, sport, niveau de vie) se règlent sur la page <a href="index.html">Jours Restants</a>. Modèle purement démographique : aucun montant, aucun notaire, aucune assurance-vie, aucun thé de grand-mère en viager. L'ordre des départs est la seule variable qui décide si vous signez ou si vos enfants signent. Ni vous ni nous ne connaissons vraiment la date.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+  </div>
+</div>
+
+<script src="life.js"></script>
+<script>
+"use strict";
+
+function survivalGrid(eff, ageNow, nM) { /* S[i] = survie à i mois d'ici */
+  const S = [1];
+  for (let m = 1; m <= nM; m++) S.push(survFrom(eff, ageNow, m / 12));
+  return S;
+}
+function sat(S, t) {
+  if (t <= 0) return 1;
+  if (t >= S.length - 1) return 0;
+  const i = Math.floor(t), f = t - i;
+  return S[i] * (1 - f) + S[i + 1] * f;
+}
+
+document.getElementById("btn").addEventListener("click", () => {
+  const errorEl = document.getElementById("error");
+  const resultEl = document.getElementById("result");
+  errorEl.textContent = "";
+  resultEl.classList.remove("visible");
+
+  const now = new Date();
+  const v = (id) => document.getElementById(id).value;
+  if (!v("b0") || !v("b1")) { errorEl.textContent = "Il faut votre date de naissance et celle d'au moins un parent. Sans parents, pas d'héritage, c'est mathématique et déprimant."; return; }
+  const d0 = new Date(v("b0")), d1 = new Date(v("b1"));
+  const hasP2 = !!v("b2");
+  const d2 = hasP2 ? new Date(v("b2")) : null;
+  if (d0 > now || d1 > now || (hasP2 && d2 > now)) { errorEl.textContent = "Pas encore né ? L'héritage peut attendre, soyez patient."; return; }
+
+  const aU = (now - d0) / (365.2425 * 86400000);
+  const a1 = (now - d1) / (365.2425 * 86400000);
+  const a2 = hasP2 ? (now - d2) / (365.2425 * 86400000) : null;
+  if (aU >= 120 || a1 >= 120 || (hasP2 && a2 >= 120)) { errorEl.textContent = "Plus de 120 ans dans la famille ? La table de mortalité se rend, la succession aussi."; return; }
+  if (a1 <= aU || (hasP2 && a2 <= aU)) { errorEl.textContent = "Ce parent est plus jeune que vous. La généalogie a ses limites, la biologie aussi."; return; }
+
+  const effU = effectiveTable(v("s0"), aU, () => 1.0);
+  const eff1 = effectiveTable(v("s1"), a1, () => 1.0);
+  const eff2 = hasP2 ? effectiveTable(v("s2"), a2, () => 1.0) : null;
+
+  const nM = Math.ceil((120 - Math.max(aU, a1, hasP2 ? a2 : 0)) * 12);
+  const SU = survivalGrid(effU, aU, nM);
+  const S1 = survivalGrid(eff1, a1, nM);
+  const S2 = hasP2 ? survivalGrid(eff2, a2, nM) : null;
+
+  /* Densité mensuelle de votre décès. */
+  const pU = [0];
+  for (let m = 1; m <= nM; m++) pU.push(SU[m - 1] - SU[m]);
+
+  /* Probabilité que vous précédiez chaque parent (vous décédez avant lui). */
+  const beforeP = (SP) => {
+    let s = 0;
+    for (let m = 1; m <= nM; m++) s += pU[m] * sat(SP, m - 0.5);
+    return s;
+  };
+  const pBefore1 = beforeP(S1);
+  const pBefore2 = hasP2 ? beforeP(S2) : null;
+
+  /* Ne jamais rien voir : décéder avant TOUS les parents déclarés. */
+  let pNever = 0;
+  for (let m = 1; m <= nM; m++) {
+    let s = sat(S1, m - 0.5);
+    if (hasP2) s *= sat(S2, m - 0.5);
+    pNever += pU[m] * s;
+  }
+
+  /* Premier héritage : médiane du premier décès parmi les parents. */
+  const medFromGrid = (sf) => { /* sf(t) : survie du/des parent(s) à t mois */
+    for (let m = 0; m <= nM; m++) {
+      if (sf(m) <= 0.5) {
+        const prev = m === 0 ? 1 : sf(m - 1);
+        const cur = sf(m);
+        const frac = prev > 0.5 ? (prev - 0.5) / (prev - cur) : 0;
+        return (m - 1 + frac) / 12;
+      }
+    }
+    return nM / 12;
+  };
+  const sfFirst = hasP2 ? (m) => sat(S1, m) * sat(S2, m) : (m) => sat(S1, m);
+  const medFirst = medFromGrid(sfFirst);
+  const med1 = medianRemaining(eff1, a1);
+  const med2 = hasP2 ? medianRemaining(eff2, a2) : null;
+
+  const days = Math.round(medFirst * 365.2425);
+  const dateFirst = new Date(now.getTime() + days * 86400000);
+  const ageFirst = aU + medFirst;
+  const dateOf = (med) => new Date(now.getTime() + Math.round(med * 365.2425) * 86400000);
+  const fmtDate = (d) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const pct = (x) => (x < 0.005 ? "< 0,5 %" : Math.round(x * 100).toLocaleString("fr-FR") + " %");
+
+  document.getElementById("days").textContent = days.toLocaleString("fr-FR");
+  document.getElementById("stat-date").textContent = fmtDate(dateFirst);
+  document.getElementById("stat-age").textContent = Math.round(ageFirst) + " ans";
+  document.getElementById("stat-never").textContent = pct(pNever);
+  document.getElementById("stat-date1").textContent = fmtDate(dateOf(med1));
+  document.getElementById("stat-p1").textContent = pct(pBefore1) + " de partir avant";
+  if (hasP2) {
+    document.getElementById("stat-date2").textContent = fmtDate(dateOf(med2));
+    document.getElementById("stat-p2").textContent = pct(pBefore2) + " de partir avant";
+    document.getElementById("stat-gap").textContent = Math.abs(med2 - med1).toFixed(0) + " an" + (Math.abs(med2 - med1) >= 2 ? "s" : "");
+  } else {
+    document.getElementById("row-p2").style.display = "none";
+    document.getElementById("row-gap").style.display = "none";
+  }
+
+  resultEl.classList.add("visible");
+});
+</script>
+</body>
+</html>

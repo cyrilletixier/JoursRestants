@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vivrons-nous ensemble ? — Jours Restants</title>
+<meta name="description" content="Survie du couple : probabilité que l'un parte avant l'autre, date probable de la première absence et durée probable du veuvage, d'après les tables de mortalité INSEE.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <div class="container">
+    <nav class="topnav">
+      <a href="/">Jours Restants</a>
+      <a class="active" href="couple.html">Vivrons-nous ensemble ?</a>
+      <a href="heritage.html">Quand vais-je hériter ?</a>
+    </nav>
+
+    <h1>Vivrons-nous <span>ensemble ?</span></h1>
+    <p class="tagline">Le mariage, c'est jusqu'à ce que la mort vous sépare. Voici l'horaire probable de la séparation.</p>
+
+    <div class="card">
+      <div class="form-grid">
+        <div class="duo-head">Première personne</div>
+        <div class="field">
+          <label for="b1">Date de naissance</label>
+          <input type="date" id="b1" required>
+        </div>
+        <div class="field">
+          <label for="s1">Sexe (statistiquement, ça change tout)</label>
+          <select id="s1">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div class="duo-head">Deuxième personne</div>
+        <div class="field">
+          <label for="b2">Date de naissance</label>
+          <input type="date" id="b2" required>
+        </div>
+        <div class="field">
+          <label for="s2">Sexe</label>
+          <select id="s2">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+      </div>
+      <button id="btn">Découvrir notre horaire</button>
+      <div class="error" id="error"></div>
+
+      <div id="result">
+        <div class="big-number" id="days"></div>
+        <div class="big-label">jours de vie commune probable avec 50&nbsp;% de chance</div>
+        <div class="stats">
+          <div class="stat"><div class="v" id="stat-date"></div><div class="k">date probable du premier départ (à 50&nbsp;%)</div></div>
+          <div class="stat"><div class="v" id="stat-first1"></div><div class="k">chances que la première personne parte avant l'autre</div></div>
+          <div class="stat"><div class="v" id="stat-first2"></div><div class="k">chances que la deuxième personne parte avant l'autre</div></div>
+          <div class="stat"><div class="v" id="stat-wid1"></div><div class="k">ans de veuvage en moyenne pour la personne 1, si elle survit</div></div>
+          <div class="stat"><div class="v" id="stat-wid2"></div><div class="k">ans de veuvage en moyenne pour la personne 2, si elle survit</div></div>
+          <div class="stat"><div class="v" id="stat-together"></div><div class="k">chance de partir à moins d'un an d'écart (le romantisme statistique)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">Calcul sur les tables de mortalité 2025 (provisoires) de l'INSEE. Les deux personnes y sont traitées comme deux destins indépendants, à la mortalité moyenne de leur sexe. Les comportements personnels (tabac, alcool, sport, niveau de vie) affineraient la date, mais ils se règlent page par page sur <a href="/">Jours Restants</a> ; ici on garde la moyenne française, le couple est déjà assez compliqué à deux inconnues. Le veuvage affiché est l'espérance du temps de survie après le premier départ, parmi les trajets où la personne survit : la taille du lit n'y change rien, les tables non plus. Ni vous ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent à deux.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+  </div>
+</div>
+
+<script src="life.js"></script>
+<script>
+"use strict";
+
+/* Prépare la grille mensuelle de survie : S[i] = survie de t=i/12 an à partir d'aujourd'hui. */
+function monthlySurvival(eff, ageNow, nMonths) {
+  const S = [1];
+  for (let m = 1; m <= nMonths; m++) S.push(survFrom(eff, ageNow, m / 12));
+  return S;
+}
+function sat(S, t) { /* interpolation linéaire, t en mois (peut être négatif ou dépasser) */
+  if (t <= 0) return 1;
+  if (t >= S.length - 1) return 0;
+  const i = Math.floor(t), f = t - i;
+  return S[i] * (1 - f) + S[i + 1] * f;
+}
+/* EX[i] = intégrale de la survie au-delà du mois i (espérance restante × survie). */
+function survivalIntegral(S) {
+  const h = 1 / 12;
+  const EX = new Array(S.length).fill(0);
+  let acc = 0;
+  for (let i = S.length - 2; i >= 0; i--) {
+    acc += (S[i] + S[i + 1]) / 2 * h;
+    EX[i] = acc;
+  }
+  return EX;
+}
+
+document.getElementById("btn").addEventListener("click", () => {
+  const errorEl = document.getElementById("error");
+  const resultEl = document.getElementById("result");
+  errorEl.textContent = "";
+  resultEl.classList.remove("visible");
+
+  const now = new Date();
+  const b1 = document.getElementById("b1").value;
+  const b2 = document.getElementById("b2").value;
+  if (!b1 || !b2) { errorEl.textContent = "Il faut deux dates de naissance. Le célibat, c'est une autre page."; return; }
+  const d1 = new Date(b1), d2 = new Date(b2);
+  if (d1 > now || d2 > now) { errorEl.textContent = "Pas encore né ? Le PACS avec un œtus statistique, on verra plus tard."; return; }
+
+  const sex1 = document.getElementById("s1").value;
+  const sex2 = document.getElementById("s2").value;
+  const a1 = (now - d1) / (365.2425 * 86400000);
+  const a2 = (now - d2) / (365.2425 * 86400000);
+  if (a1 >= 120 || a2 >= 120) { errorEl.textContent = "Plus de 120 ans à deux ? La table de mortalité se rend, le couple aussi."; return; }
+
+  const eff1 = effectiveTable(sex1, a1, () => 1.0);
+  const eff2 = effectiveTable(sex2, a2, () => 1.0);
+
+  const maxYears = 120 - Math.max(a1, a2);
+  const nM = Math.ceil(maxYears * 12);
+  const S1 = monthlySurvival(eff1, a1, nM);
+  const S2 = monthlySurvival(eff2, a2, nM);
+
+  /* Densités mensuelles de décès : p[m] = P( décès dans le mois m ). */
+  const p1 = [0], p2 = [0];
+  for (let m = 1; m <= nM; m++) {
+    p1.push(S1[m - 1] - S1[m]);
+    p2.push(S2[m - 1] - S2[m]);
+  }
+
+  /* Qui part le premier ? mort de 1 au mois m (centre m-0,5), l'autre encore vivant. */
+  let p1First = 0, p2First = 0;
+  for (let m = 1; m <= nM; m++) {
+    p1First += p1[m] * sat(S2, m - 0.5);
+    p2First += p2[m] * sat(S1, m - 0.5);
+  }
+
+  /* Espérance conditionnelle du temps de survie après le premier départ.
+     E[(T1-T2)+] = Σ p2(m) . EX1(c) : EX1(c) = S1(c) × e1(c) inclut déjà
+     la probabilité que 1 soit vivant à l'heure du décès de 2. */
+  const EX1 = survivalIntegral(S1), EX2 = survivalIntegral(S2);
+  let EV1 = 0, EV2 = 0, p1Surv = 0, p2Surv = 0;
+  for (let m = 1; m <= nM; m++) {
+    const c = m - 0.5;
+    if (p2[m] > 0) {
+      EV1 += p2[m] * sat(EX1, c);
+      p1Surv += p2[m] * sat(S1, c);
+    }
+    if (p1[m] > 0) {
+      EV2 += p1[m] * sat(EX2, c);
+      p2Surv += p1[m] * sat(S2, c);
+    }
+  }
+
+  /* Romantisme : décès à moins d'un an d'écart. */
+  let pSameYear = 0;
+  for (let m = 1; m <= nM; m++) {
+    if (p1[m] <= 0) continue;
+    pSameYear += p1[m] * (sat(S2, m - 0.5 - 12) - sat(S2, m - 0.5 + 12));
+  }
+
+  /* Médiane de la vie commune : plus petit t tel que S1(t).S2(t) <= 0,5. */
+  let med = maxYears;
+  for (let m = 0; m <= nM; m++) {
+    if (S1[m] * S2[m] <= 0.5) {
+      const prev = m === 0 ? 1 : S1[m - 1] * S2[m - 1];
+      const frac = prev > 0.5 ? (prev - 0.5) / (prev - S1[m] * S2[m]) : 0;
+      med = (m - 1 + frac) / 12;
+      break;
+    }
+  }
+
+  const togetherDays = Math.round(med * 365.2425);
+  const firstDate = new Date(now.getTime() + togetherDays * 86400000);
+  const pct = (x) => Math.round(x * 100).toLocaleString("fr-FR") + " %";
+
+  document.getElementById("days").textContent = togetherDays.toLocaleString("fr-FR");
+  document.getElementById("stat-date").textContent = firstDate.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  document.getElementById("stat-first1").textContent = pct(p1First);
+  document.getElementById("stat-first2").textContent = pct(p2First);
+  document.getElementById("stat-wid1").textContent = (p1Surv > 0.001 ? (EV1 / p1Surv).toFixed(1).replace(".", ",") : "0") + " an" + (p1Surv > 0.001 && EV1 / p1Surv >= 2 ? "s" : "");
+  document.getElementById("stat-wid2").textContent = (p2Surv > 0.001 ? (EV2 / p2Surv).toFixed(1).replace(".", ",") : "0") + " an" + (p2Surv > 0.001 && EV2 / p2Surv >= 2 ? "s" : "");
+  document.getElementById("stat-together").textContent = pSameYear < 0.005 ? "< 0,5 %" : pct(pSameYear);
+
+  resultEl.classList.add("visible");
+});
+</script>
+</body>
+</html>
