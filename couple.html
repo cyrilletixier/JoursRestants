@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vivrons-nous ensemble ? — Jours Restants</title>
-<meta name="description" content="Survie du couple : probabilité que l'un parte avant l'autre, date probable de la première absence et durée probable du veuvage, d'après les tables de mortalité INSEE.">
+<meta name="description" content="Survie du couple : probabilité que l'un parte avant l'autre, date probable de la première absence et durée probable du veuvage, avec comportements individuels et niveau de vie du ménage.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="layout">
   <div class="container">
     <nav class="topnav">
-      <a href="/">Jours Restants</a>
+      <a href="index.html">Jours Restants</a>
       <a class="active" href="couple.html">Vivrons-nous ensemble ?</a>
       <a href="heritage.html">Quand vais-je hériter ?</a>
       <a href="api.html">API</a>
@@ -21,32 +21,102 @@
     <p class="tagline">Le mariage, c'est jusqu'à ce que la mort vous sépare. Voici l'horaire probable de la séparation.</p>
 
     <div class="card">
-      <div class="form-grid">
-        <div class="duo-head">Première personne</div>
-        <div class="field">
-          <label for="b1">Date de naissance</label>
-          <input type="date" id="b1" required>
+      <div class="duo-cards">
+        <div class="person-card">
+          <h3>Personne 1 (à gauche, comme au mariage)</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="b1">Date de naissance</label>
+              <input type="date" id="b1" required>
+            </div>
+            <div class="field">
+              <label for="s1">Sexe (statistiquement, ça change tout)</label>
+              <select id="s1">
+                <option value="H">Homme</option>
+                <option value="F">Femme</option>
+              </select>
+            </div>
+          </div>
+          <div class="habit-group">
+            <h3>Cigarettes</h3>
+            <label class="radio-row"><input type="radio" name="tabac1" value="jamais" checked><span>Jamais fumé</span></label>
+            <label class="radio-row"><input type="radio" name="tabac1" value="fume"><span>Je fume</span></label>
+            <label class="radio-row"><input type="radio" name="tabac1" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
+            <label class="radio-row"><input type="radio" name="tabac1" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
+          </div>
+          <div class="habit-group">
+            <h3>Alcool</h3>
+            <label class="radio-row"><input type="radio" name="alcool1" value="occas" checked><span>Jamais ou occasionnellement</span></label>
+            <label class="radio-row"><input type="radio" name="alcool1" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
+            <label class="radio-row"><input type="radio" name="alcool1" value="fort"><span>Nettement plus que modéré</span></label>
+          </div>
+          <div class="habit-group">
+            <h3>Activité physique</h3>
+            <label class="radio-row"><input type="radio" name="sport1" value="regulier"><span>Régulière (le corps dit merci)</span></label>
+            <label class="radio-row"><input type="radio" name="sport1" value="parfois" checked><span>De temps en temps</span></label>
+            <label class="radio-row"><input type="radio" name="sport1" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
+          </div>
         </div>
-        <div class="field">
-          <label for="s1">Sexe (statistiquement, ça change tout)</label>
-          <select id="s1">
-            <option value="H">Homme</option>
-            <option value="F">Femme</option>
-          </select>
-        </div>
-        <div class="duo-head">Deuxième personne</div>
-        <div class="field">
-          <label for="b2">Date de naissance</label>
-          <input type="date" id="b2" required>
-        </div>
-        <div class="field">
-          <label for="s2">Sexe</label>
-          <select id="s2">
-            <option value="H">Homme</option>
-            <option value="F">Femme</option>
-          </select>
+
+        <div class="person-card">
+          <h3>Personne 2 (à droite, comme au mariage)</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="b2">Date de naissance</label>
+              <input type="date" id="b2" required>
+            </div>
+            <div class="field">
+              <label for="s2">Sexe</label>
+              <select id="s2">
+                <option value="H">Homme</option>
+                <option value="F">Femme</option>
+              </select>
+            </div>
+          </div>
+          <div class="habit-group">
+            <h3>Cigarettes</h3>
+            <label class="radio-row"><input type="radio" name="tabac2" value="jamais" checked><span>Jamais fumé</span></label>
+            <label class="radio-row"><input type="radio" name="tabac2" value="fume"><span>Je fume</span></label>
+            <label class="radio-row"><input type="radio" name="tabac2" value="arrete"><span>J'ai fumé, j'ai arrêté</span></label>
+            <label class="radio-row"><input type="radio" name="tabac2" value="aujourdhui"><span>J'arrête aujourd'hui</span></label>
+          </div>
+          <div class="habit-group">
+            <h3>Alcool</h3>
+            <label class="radio-row"><input type="radio" name="alcool2" value="occas" checked><span>Jamais ou occasionnellement</span></label>
+            <label class="radio-row"><input type="radio" name="alcool2" value="modere"><span>Modéré (≤ 2 verres/jour)</span></label>
+            <label class="radio-row"><input type="radio" name="alcool2" value="fort"><span>Nettement plus que modéré</span></label>
+          </div>
+          <div class="habit-group">
+            <h3>Activité physique</h3>
+            <label class="radio-row"><input type="radio" name="sport2" value="regulier"><span>Régulière (le corps dit merci)</span></label>
+            <label class="radio-row"><input type="radio" name="sport2" value="parfois" checked><span>De temps en temps</span></label>
+            <label class="radio-row"><input type="radio" name="sport2" value="sedentaire"><span>Sédentaire (le canapé dit merci)</span></label>
+          </div>
         </div>
       </div>
+
+      <div class="shared-card">
+        <h3>Le foyer (ce qui se partage : le compte en banque, et la futurologie)</h3>
+        <div class="form-grid">
+          <div class="field">
+            <label for="niveau">Niveau de vie du ménage (proxy du patrimoine, la Faucheuse lit l'avis d'imposition, un seul par foyer)</label>
+            <select id="niveau">
+              <option value="tres_modeste">Très modeste (les 5&nbsp;% les plus discrets à l'AGD)</option>
+              <option value="modeste">Modeste</option>
+              <option value="moyen" selected>Moyen (la France d'en bas, d'en haut, du milieu)</option>
+              <option value="aise">Aisé</option>
+              <option value="tres_aise">Très aisé (les 5&nbsp;% qui se photographient devant leur ostéopathe)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Futurologie assistée par IA (pour deux)</label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="cancer"><span>L'IA guérit les cancers</span></label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="cardio"><span>L'IA guérit les maladies cardiovasculaires</span></label>
+            <label class="check-row"><input type="checkbox" name="hypo" value="neuro"><span>L'IA guérit Alzheimer et les maladies neurodégénératives</span></label>
+          </div>
+        </div>
+      </div>
+
       <button id="btn">Découvrir notre horaire</button>
       <div class="error" id="error"></div>
 
@@ -55,8 +125,8 @@
         <div class="big-label">jours de vie commune probable avec 50&nbsp;% de chance</div>
         <div class="stats">
           <div class="stat"><div class="v" id="stat-date"></div><div class="k">date probable du premier départ (à 50&nbsp;%)</div></div>
-          <div class="stat"><div class="v" id="stat-first1"></div><div class="k">chances que la première personne parte avant l'autre</div></div>
-          <div class="stat"><div class="v" id="stat-first2"></div><div class="k">chances que la deuxième personne parte avant l'autre</div></div>
+          <div class="stat"><div class="v" id="stat-first1"></div><div class="k">chances que la personne 1 parte avant l'autre</div></div>
+          <div class="stat"><div class="v" id="stat-first2"></div><div class="k">chances que la personne 2 parte avant l'autre</div></div>
           <div class="stat"><div class="v" id="stat-wid1"></div><div class="k">ans de veuvage en moyenne pour la personne 1, si elle survit</div></div>
           <div class="stat"><div class="v" id="stat-wid2"></div><div class="k">ans de veuvage en moyenne pour la personne 2, si elle survit</div></div>
           <div class="stat"><div class="v" id="stat-together"></div><div class="k">chance de partir à moins d'un an d'écart (le romantisme statistique)</div></div>
@@ -64,12 +134,13 @@
       </div>
     </div>
 
-    <p class="disclaimer">Calcul sur les tables de mortalité 2025 (provisoires) de l'INSEE. Les deux personnes y sont traitées comme deux destins indépendants, à la mortalité moyenne de leur sexe. Les comportements personnels (tabac, alcool, sport, niveau de vie) affineraient la date, mais ils se règlent page par page sur <a href="/">Jours Restants</a> ; ici on garde la moyenne française, le couple est déjà assez compliqué à deux inconnues. Le veuvage affiché est l'espérance du temps de survie après le premier départ, parmi les trajets où la personne survit : la taille du lit n'y change rien, les tables non plus. Ni vous ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent à deux.</p>
+    <p class="disclaimer">Calcul sur les tables de mortalité 2025 (provisoires) de l'INSEE. Les deux personnes y sont traitées comme deux destins indépendants, chacun calé sur ses comportements individuels (tabac, alcool, activité physique : Doll et al. BMJ 2004, Wood et al. Lancet 2018, Moore et al. PLoS Medicine 2012) ; le niveau de vie est commun au foyer (Insee Première n° 2085 : 13 ans d'écart entre extrêmes chez les hommes, 9 chez les femmes) et les hypothèses IA s'appliquent aux deux. Cumuler ces facteurs comporte un risque de double comptage, les aisés fumant moins, et la réalité des couples corrèle les destins que ce calcul suppose indépendants : deux alas qui se tiennent, c'est rare. Le veuvage affiché est l'espérance du temps de survie après le premier départ, parmi les trajets où la personne survit. Ni vous ni nous ne connaissons vraiment la date. Le meilleur reste possible&nbsp;: vous êtes peut-être dans les 50&nbsp;% qui traînent à deux.</p>
     <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
   </div>
 </div>
 
 <script src="life.js"></script>
+<script src="hazards.js"></script>
 <script>
 "use strict";
 
@@ -108,7 +179,7 @@ document.getElementById("btn").addEventListener("click", () => {
   const b2 = document.getElementById("b2").value;
   if (!b1 || !b2) { errorEl.textContent = "Il faut deux dates de naissance. Le célibat, c'est une autre page."; return; }
   const d1 = new Date(b1), d2 = new Date(b2);
-  if (d1 > now || d2 > now) { errorEl.textContent = "Pas encore né ? Le PACS avec un œtus statistique, on verra plus tard."; return; }
+  if (d1 > now || d2 > now) { errorEl.textContent = "Pas encore né ? Le PACS avec un œuvre statistique, on verra plus tard."; return; }
 
   const sex1 = document.getElementById("s1").value;
   const sex2 = document.getElementById("s2").value;
@@ -116,8 +187,17 @@ document.getElementById("btn").addEventListener("click", () => {
   const a2 = (now - d2) / (365.2425 * 86400000);
   if (a1 >= 120 || a2 >= 120) { errorEl.textContent = "Plus de 120 ans à deux ? La table de mortalité se rend, le couple aussi."; return; }
 
-  const eff1 = effectiveTable(sex1, a1, () => 1.0);
-  const eff2 = effectiveTable(sex2, a2, () => 1.0);
+  /* Comportements individuels, niveau de vie commun, hypothèses IA partagées. */
+  const niveau = document.getElementById("niveau").value;
+  const hypo = Array.from(document.querySelectorAll('input[name="hypo"]:checked')).map(el => el.value);
+  const opts = (n) => ({
+    tabac: document.querySelector('input[name="tabac' + n + '"]:checked').value,
+    alcool: document.querySelector('input[name="alcool' + n + '"]:checked').value,
+    sport: document.querySelector('input[name="sport' + n + '"]:checked').value,
+    niveau: niveau
+  });
+  const eff1 = effectiveTable(sex1, a1, combinedHazard(a1, sex1, opts(1), hypo));
+  const eff2 = effectiveTable(sex2, a2, combinedHazard(a2, sex2, opts(2), hypo));
 
   const maxYears = 120 - Math.max(a1, a2);
   const nM = Math.ceil(maxYears * 12);
