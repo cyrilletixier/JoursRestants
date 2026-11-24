@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API — Jours Restants</title>
+<meta name="description" content="API statique de Jours Restants : envoyez une date de naissance et un sexe, recevez le nombre de jours restants avec 50 % de chance. Calcul 100 % local, aucune donnée ne part.">
+<link rel="stylesheet" href="style.css">
+<style>
+  .api-doc h2 { font-size: 1rem; color: var(--accent); margin: 1.6rem 0 .5rem; letter-spacing: 1px; text-transform: uppercase; }
+  .api-doc p, .api-doc li { color: var(--text); font-size: .9rem; line-height: 1.5; }
+  .api-doc ul { margin: .4rem 0 .4rem 1.2rem; }
+  pre {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: .9rem 1rem; overflow-x: auto; font-size: .8rem; line-height: 1.5;
+    color: var(--text); margin: .6rem 0;
+  }
+  code { color: var(--accent); font-size: .85rem; }
+  pre code { color: var(--text); }
+  .bare { color: var(--muted); font-size: .78rem; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="container">
+    <nav class="topnav">
+      <a href="index.html">Jours Restants</a>
+      <a href="couple.html">Vivrons-nous ensemble ?</a>
+      <a href="heritage.html">Quand vais-je hériter ?</a>
+      <a class="active" href="api.html">API</a>
+    </nav>
+
+    <h1>API <span>Restants</span></h1>
+    <p class="tagline">Envoyez une date de naissance et un sexe, recevez un nombre de jours. L'upload de votre âme n'est pas encore supporté.</p>
+
+    <div class="card api-doc">
+      <h2>Mode URL (navigateur)</h2>
+      <p>Dans un navigateur, la page se réduit au JSON quand on lui passe les paramètres&nbsp;:</p>
+      <pre><a href="api.html?date=1985-06-15&amp;sexe=H">api.html?date=1985-06-15&amp;sexe=H</a></pre>
+      <p>Réponse&nbsp;: un objet <code>naissance</code>, <code>sexe</code>, <code>jours_restants</code> (à 50&nbsp;%), <code>date_deces_probable</code>, <code>esperance_vie_restante_ans</code>. En cas d'entrée invalide, un champ <code>erreur</code> poliment bordélique.
+
+      <h2>Mode bibliothèque (machines)</h2>
+      <p>GitHub Pages ne calcule rien côté serveur&nbsp;: l'API, c'est le JavaScript. Incluez les deux scripts et appelez la fonction, le calcul est local et instantané.</p>
+      <pre>&lt;script src="https://cyrilletixier.github.io/JoursRestants/life.js"&gt;&lt;/script&gt;
+&lt;script src="https://cyrilletixier.github.io/JoursRestants/api.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const r = JoursRestantsApi.compute("1985-06-15", "H");
+  console.log(r.jours_restants);
+&lt;/script&gt;</pre>
+      <p>En Node.js, même combat&nbsp;:</p>
+      <pre>const fs = require("fs");
+eval(fs.readFileSync("life.js", "utf8"));
+eval(fs.readFileSync("api.js", "utf8"));
+const r = JoursRestantsApi.compute("1985-06-15", "H");
+console.log(r);</pre>
+
+      <h2>Mode formulaire (pressés)</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="demo-date">Date de naissance</label>
+          <input type="date" id="demo-date" required>
+        </div>
+        <div class="field">
+          <label for="demo-sexe">Sexe</label>
+          <select id="demo-sexe">
+            <option value="H">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+      </div>
+      <button id="btn">Requêter l'inévitable</button>
+      <pre id="demo-out">// La réponse apparaîtra ici, nue et sans fard.</pre>
+    </div>
+
+    <p class="disclaimer">API statique&nbsp;: aucun serveur, aucune base de données, aucun log. Vos dates de naissance ne quittent jamais le navigateur, c'est l'avantage du calcul local&nbsp;: personne d'autre ne sait quand vous partez, pas même nous. Le champ <code>jours_restants</code> est la médiane de survie aux tables INSEE 2025 provisoires (population moyenne du sexe), soit 50&nbsp;% de chances d'être encore là. Pour affiner avec tabac, alcool, sport et niveau de vie, la page <a href="index.html">Jours Restants</a> s'occupe de votre ego, l'API s'occupe de la statistique brute.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+  </div>
+</div>
+
+<script src="life.js"></script>
+<script src="api.js"></script>
+<script>
+"use strict";
+
+(function () {
+  /* Mode URL : ?date=YYYY-MM-DD&sexe=H|F -> la page se réduit au JSON. */
+  const q = new URLSearchParams(window.location.search);
+  if (q.get("date") || q.get("sexe")) {
+    const r = JoursRestantsApi.compute(q.get("date"), q.get("sexe"));
+    document.title = (typeof r.erreur === "string") ? "Erreur — API Jours Restants" : "Jours restants : " + r.jours_restants;
+    document.body.innerHTML = "<pre>" + JSON.stringify(r, null, 2) + "</pre>";
+    return;
+  }
+
+  /* Mode documentation : petit formulaire de démonstration. */
+  document.getElementById("btn").addEventListener("click", () => {
+    const date = document.getElementById("demo-date").value;
+    const sexe = document.getElementById("demo-sexe").value;
+    const out = document.getElementById("demo-out");
+    if (!date) { out.textContent = JSON.stringify({ erreur: "Il faut une date de naissance. Sans elle, l'API renvoie l'immortalité, et c'est hors scope." }, null, 2); return; }
+    const url = "api.html?date=" + date + "&sexe=" + sexe;
+    out.innerHTML = "// GET <a href=\"" + url + "\">" + url + "</a>\n" +
+      JSON.stringify(JoursRestantsApi.compute(date, sexe), null, 2);
+  });
+})();
+</script>
+</body>
+</html>
