@@ -244,6 +244,9 @@
           <div class="stat"><div class="v" id="stat-ia"></div><div class="k">bonus hypothèses médicales (IA)</div></div>
           <div class="stat"><div class="v" id="stat-lived"></div><div class="k">de la vie déjà consommée</div></div>
           <div class="stat"><div class="v" id="stat-weeks"></div><div class="k">week-ends restants (avec un peu de chance)</div></div>
+          <div class="stat"><div class="v" id="stat-study"></div><div class="k">jours d'études restants (partiels compris)</div></div>
+          <div class="stat"><div class="v" id="stat-work"></div><div class="k">jours à travailler (≈ 228 jours ouvrés/an)</div></div>
+          <div class="stat"><div class="v bonus" id="stat-slack"></div><div class="k">jours à glander (le reste, tout le reste)</div></div>
         </div>
       </div>
     </div>
@@ -513,6 +516,22 @@ document.getElementById("btn").addEventListener("click", () => {
   iaEl.className = "v " + (iaDelta >= 0 ? "bonus" : "malus");
   document.getElementById("stat-lived").textContent = livedFrac.toFixed(0) + " %";
   document.getElementById("stat-weeks").textContent = Math.floor(remainDays / 7).toLocaleString("fr-FR");
+
+  /* ---- Répartition statistique du temps restant ----
+     Études jusqu'à 22 ans (fin moyenne des études supérieures),
+     travail jusqu'à 64 ans (âge légal de départ, réforme 2023),
+     à raison d'environ 228 jours ouvrés par an (5 sem. de congés +
+     jours fériés + RTT). Tout le reste : glandage, au sens le plus large
+     et le plus honorable du terme (week-ends, congés, retraite, sieste,
+     contemplation du plafond). Remarque : la somme tombe juste,
+     la-compte-à-rebours-vous-savez-le-reste. */
+  const FIN_ETUDES = 22, RETRAITE = 64, JOURS_OUVRRES_AN = 228;
+  const studyDays = age < FIN_ETUDES ? Math.round((FIN_ETUDES - age) * 365.2425) : 0;
+  const workDays = age < RETRAITE ? Math.round(Math.max(0, RETRAITE - Math.max(age, FIN_ETUDES)) * JOURS_OUVRRES_AN) : 0;
+  const slackDays = Math.max(0, remainDays - studyDays - workDays);
+  document.getElementById("stat-study").textContent = studyDays.toLocaleString("fr-FR");
+  document.getElementById("stat-work").textContent = workDays.toLocaleString("fr-FR");
+  document.getElementById("stat-slack").textContent = slackDays.toLocaleString("fr-FR");
 
   /* ---- Simulation : si je survis encore 1 à 10 ans ----
      On décale l'âge et on recalcule avec les mêmes comportements.
