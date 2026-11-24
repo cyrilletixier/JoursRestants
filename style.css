@@ -257,3 +257,15 @@
 
   /* Note explicative sous le sélecteur de retraite */
   .note-inline { color: var(--muted); font-size: .72rem; margin-top: .8rem; line-height: 1.45; }
+
+  /* ---- Page méthodologie : la prose de la Faucheuse ---- */
+  .metho h2 {
+    font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--accent); margin: 1.7rem 0 .6rem;
+  }
+  .metho h2:first-child { margin-top: 0; }
+  .metho p { font-size: .88rem; line-height: 1.55; margin-bottom: .8rem; color: var(--text); }
+  .metho ul { margin: 0 0 .9rem 1.2rem; }
+  .metho li { font-size: .85rem; line-height: 1.5; margin-bottom: .45rem; color: var(--text); }
+  .metho strong { color: var(--accent); font-weight: 600; }
+

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Méthodologie — Jours Restants</title>
+<meta name="description" content="Comment le site Jours Restants calcule votre compte à rebours : tables de mortalité INSEE 2025, multiplicateurs de risque, médiane à 50 %, limites du modèle. La mécanique de la Faucheuse, expliquée.">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<div class="layout">
+  <div class="container">
+    <nav class="topnav">
+      <a href="index.html">Jours Restants</a>
+      <a href="couple.html">Vivrons-nous ensemble ?</a>
+      <a href="heritage.html">Quand vais-je hériter ?</a>
+      <a href="api.html">API</a>
+      <a class="active" href="methodologie.html">Méthodo</a>
+    </nav>
+
+    <h1>La <span>méthode</span>, sans le destin</h1>
+    <p class="tagline">Tout ce que ce site sait de vous tient dans des tables de mortalité. Le reste, c'est de la mise en forme.</p>
+
+    <div class="card metho">
+      <h2>La matière première : les tables INSEE</h2>
+      <p>Le site repose sur les tables de mortalité 2025 (provisoires) de l'INSEE, série DEC3 : pour chaque âge et chaque sexe, le quotient de mortalité q(x), c'est-à-dire la probabilité de décéder dans l'année pour un survivant arrivé à cet âge. Les tables couvrent 0 à 100 ans ; au-delà, le quotient est prolongé en le multipliant par environ 1,09 par an jusqu'à ce qu'il atteigne 1 : la table est fermée à 120 ans, âge auquel la statistique jette l'éponge et vous laisse gagner par forfait.</p>
+      <p>Les données sont provisoires : l'INSEE peaufine ses comptes comme tout le monde, sauf que ses retards de publication portent sur des vies entières.</p>
+
+      <h2>La date affichée est une médiane, pas une prophétie</h2>
+      <p>Le grand nombre affiché est le temps restant au bout duquel votre probabilité de survie passe sous 50 %. Concrètement : la moitié des gens exactement comme vous (même âge, même sexe, mêmes réponses) part avant, l'autre moitié après. C'est le seul pari que la statistique accepte de publier.</p>
+      <ul>
+        <li><strong>Médiane et espérance ne sont pas la même chose.</strong> L'espérance de vie restante est une moyenne, tirée vers le bas par les décès précoces ; c'est pourquoi la médiane affichée peut la dépasser. Une poignée de départs anticipés ruine la moyenne pour tout le monde, solidarité dont les intéressés n'ont jamais eu le temps de profiter.</li>
+        <li>La survie d'une année à l'autre est le produit des (1&nbsp;-&nbsp;q(x)) de chaque âge franchi, avec interpolation à l'intérieur de l'année : personne ne décède le 1er janvier pour faire plaisir aux tables.</li>
+        <li>L'espérance est obtenue en intégrant la courbe de survie par pas d'un douzième d'année : la Faucheuse travaille au mois près.</li>
+      </ul>
+
+      <h2>Les comportements : des multiplicateurs de risque</h2>
+      <p>Vos réponses ne changent pas la table INSEE, elles la modulent. À chaque âge à venir, le quotient de base devient q'&nbsp;=&nbsp;1&nbsp;-&nbsp;(1&nbsp;-&nbsp;q)<sup>m</sup>, où m est le multiplicateur de risque cumulé de vos habitudes et de votre niveau de vie. Un multiplicateur de 2 double en gros votre risque annuel ; c'est le seul endroit du site où répondre honnêtement est une stratégie gagnante.</p>
+      <ul>
+        <li><strong>Tabac</strong> : environ 10 ans d'écart d'espérance entre un jamais-fumeur et un fumeur (Doll et al., BMJ 2004). Fumeur : multiplicateur 2,5. « J'arrête aujourd'hui » : le multiplicateur redescend de 2,5 vers 1,25 en une dizaine d'années. Arrêter ne rend pas les années confisquées, il cesse d'en confisquer des nouvelles.</li>
+        <li><strong>Alcool</strong> : consommation forte, 4 à 5 ans perdus (Wood et al., The Lancet 2018), multiplicateur 1,4 ; modérée, à peu près neutre, ce qui contrarie à égalité les deux chapelles.</li>
+        <li><strong>Sport</strong> : actif régulier environ +3 ans, sédentaire environ -3 ans (Moore et al., PLoS Medicine 2012).</li>
+        <li><strong>Calage sur le réel</strong> : le Français moyen de l'INSEE n'est ni un jamais-fumeur ni un marathonien. Tous les multiplicateurs sont relatifs au mix réel de la population du même sexe (Baromètre Santé publique France, ANSES) ; c'est pour ça que la case « jamais fumé » rapporte : elle vous compare à une moyenne qui fume.</li>
+        <li><strong>Niveau de vie</strong> : proxy du patrimoine. 13 ans d'écart d'espérance de vie chez les hommes entre les 5&nbsp;% les plus modestes et les 5&nbsp;% les plus aisés, 9 ans chez les femmes (Insee Première n°&nbsp;2085, déc.&nbsp;2025), convertis en multiplicateurs constants par tranche, de 0,51 (homme très aisé, la mortalité en costume) à 1,97 (homme très modeste). Cumuler « aisé » et « jamais fumé » comporte un risque de double comptage : les riches fument aussi moins, et la Faucheuse ne rembourse pas les doublons.</li>
+      </ul>
+
+      <h2>Les hypothèses « l'IA guérit »</h2>
+      <p>Les trois premières causes de décès en France (Inserm CépiDc) sont sur des cases à cocher : cancer (~26&nbsp;% du risque de mortalité avant 75 ans, ~15&nbsp;% après), cardiovasculaire (~20&nbsp;/&nbsp;28&nbsp;%), neurodégénérative (~8&nbsp;/&nbsp;18&nbsp;%). Cocher une case ne supprime que cette part du risque annuel, le reste du catalogue continue de courir : éliminer le cancer ne vous rend pas immortel, ça vous fait juste mourir d'autre chose, plus tard, dans un délai qu'on peut chiffrer. Un plancher de 10&nbsp;% du risque subsiste dans tous les cas : la biologie reste souveraine sur le logiciel.</p>
+
+      <h2>Le camembert des journées</h2>
+      <ul>
+        <li><strong>Petite enfance</strong> : de votre âge actuel jusqu'à 6 ans, l'entrée au CP. À 6 ans révolus, le poste est soldé ; il ne vous reste de la maternelle que la sieste, qui vous suivra toute la vie.</li>
+        <li><strong>Cours</strong> : de 6 à 22 ans (fin moyenne des études supérieures), hors vacances. Les 16 semaines de vacances annuelles (Toussaint, Noël, hiver, printemps, été compris, soit 112 jours calendaires par an) sont versées à la glandouille : juillet à la plage et novembre devant une série relèvent du même poste budgétaire.</li>
+        <li><strong>Travail</strong> : de la fin des études jusqu'à l'âge de départ choisi, à raison de 228 jours ouvrés par an (5 semaines de congés + jours fériés + RTT). L'âge de retraite ne déplace pas votre date de décès d'un jour : il réétiquette des journées entre « travail » et « glandouille ». La Faucheuse lit les tables INSEE, pas la CNAV.</li>
+        <li><strong>Glandouille</strong> : le solde. Tout ce qui n'est ni classe ni bureau, au sens le plus large et le plus honorable du terme.</li>
+      </ul>
+      <p>Cette ventilation est une moyenne statistique : le site ignore si vous êtes en colle d'examen, en burn-out ou en congé parental. Il répartit, il ne juge pas. Ça non plus.</p>
+
+      <h2>Les autres pages</h2>
+      <ul>
+        <li><strong>Couple</strong> : chaque partenaire est calculé sur sa propre table (âge, sexe, habitudes), destins supposés indépendants. Le veuvage est la probabilité qu'un partenaire survive à l'autre, la seule question du site où l'on espère que la moitié des gens se trompe.</li>
+        <li><strong>Héritage</strong> : médiane du premier décès parmi les parents déclarés, et probabilité que le virement arrive après votre propre départ, héritage qui vous esquive.</li>
+        <li><strong>API</strong> : tout le calcul tourne dans votre navigateur, rien n'est envoyé nulle part. Aucune donnée ne quitte votre machine, même pas votre date de naissance : votre mort se calcule en local, traitez ça comme le dernier service de confidentialité qu'on ne vous facturera pas.</li>
+      </ul>
+
+      <h2>Les limites, lues à haute voix</h2>
+      <ul>
+        <li>Les tables 2025 sont provisoires : la statistique publie avant d'être certaine, comme tout le monde.</li>
+        <li>Les habitudes sont supposées constantes jusqu'au dernier jour : le modèle ignore les rebonds, les conversions et les chemins de croix.</li>
+        <li>Les multiplicateurs se multiplient entre eux : hypothèse standard, mais cumuler « très aisé » et « jamais fumé » peut compter deux fois le même avantage, et la Faucheuse ne rembourse pas les doublons.</li>
+        <li>Le modèle est population, pas patient : il ignore votre tension, votre génétique, vos analyses et votre banquier.</li>
+        <li>Ni vous, ni nous ne connaissons vraiment la date. Le meilleur reste possible : vous êtes peut-être dans les 50&nbsp;% qui traînent.</li>
+      </ul>
+    </div>
+
+    <p class="disclaimer">Sources principales : INSEE (tables de mortalité 2025 provisoires, quotients DEC3 ; Insee Première n°&nbsp;2085), Doll et al., BMJ 2004 (tabac), Wood et al., The Lancet 2018 (alcool), Moore et al., PLoS Medicine 2012 (activité physique), Baromètre Santé publique France et ANSES (calage des comportements), Inserm CépiDc (causes de décès). Aucune donnée n'est collectée, aucun conseil médical n'est donné, aucune date n'est garantie : la seule certitude de ce site est sa méthode.</p>
+    <footer>Source&nbsp;: <a href="https://www.insee.fr/fr/statistiques/8999019" target="_blank" rel="noopener">INSEE — Quotients de mortalité par sexe et âge</a></footer>
+    <footer>Site conçu, calculé et publié par <a href="https://chat.mistral.ai" target="_blank" rel="noopener">Vibe</a>, l'agent de Mistral AI&nbsp;: la seule intervenante du projet à n'avoir aucun jour restant à perdre. Le calcul, c'est elle&nbsp;; le compte à rebours, c'est vous.</footer>
+  </div>
+</div>
+</body>
+</html>
